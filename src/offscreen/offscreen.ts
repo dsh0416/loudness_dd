@@ -30,7 +30,7 @@ interface TabAudioProcessor {
   analyserNode: AnalyserNode
   gainNode: GainNode
   limiterNode: DynamicsCompressorNode
-  scriptProcessor: ScriptProcessorNode
+  workletNode: AudioWorkletNode
   lufsCalculator: LufsCalculator
   stream: MediaStream
   updateInterval: number | null
@@ -183,7 +183,7 @@ async function cleanupProcessor(tabId: number): Promise<void> {
 
   // Disconnect nodes
   try {
-    processor.scriptProcessor.disconnect()
+    processor.workletNode.disconnect()
     processor.sourceNode.disconnect()
     processor.gainNode.disconnect()
     processor.limiterNode.disconnect()
@@ -272,34 +272,28 @@ async function startCapture(
       channels: 2, // Assume stereo
     })
 
-    // Set up audio processing with ScriptProcessor (for LUFS calculation)
-    // Note: ScriptProcessor is deprecated but AudioWorklet requires more setup
-    const scriptProcessor = audioContext.createScriptProcessor(4096, 2, 2)
+    // Load the AudioWorklet module for LUFS processing
+    // The processor file is in the public folder and copied to the extension root
+    await audioContext.audioWorklet.addModule(chrome.runtime.getURL('lufs-processor.js'))
 
-    // Connect source to script processor for analysis (parallel to playback chain)
-    sourceNode.connect(scriptProcessor)
-    // ScriptProcessor needs to be connected to destination to process
-    scriptProcessor.connect(audioContext.destination)
+    // Create AudioWorkletNode for LUFS analysis
+    const workletNode = new AudioWorkletNode(audioContext, 'lufs-processor', {
+      numberOfInputs: 1,
+      numberOfOutputs: 1,
+      outputChannelCount: [2],
+    })
 
-    scriptProcessor.onaudioprocess = (event) => {
-      const inputL = event.inputBuffer.getChannelData(0)
-      const inputR = event.inputBuffer.getChannelData(1)
-
-      // Interleave samples for LUFS calculator
-      const interleaved = new Float32Array(inputL.length * 2)
-      for (let i = 0; i < inputL.length; i++) {
-        interleaved[i * 2] = inputL[i] ?? 0
-        interleaved[i * 2 + 1] = inputR[i] ?? 0
+    // Handle messages from the worklet (audio samples for LUFS calculation)
+    workletNode.port.onmessage = (event) => {
+      if (event.data.type === 'samples') {
+        lufsCalculator.processInterleaved(event.data.samples)
       }
-
-      lufsCalculator.processInterleaved(interleaved)
-
-      // Silence the output from script processor (we don't want double audio)
-      const outputL = event.outputBuffer.getChannelData(0)
-      const outputR = event.outputBuffer.getChannelData(1)
-      outputL.fill(0)
-      outputR.fill(0)
     }
+
+    // Connect source to worklet for analysis (parallel to playback chain)
+    sourceNode.connect(workletNode)
+    // Worklet needs to be connected to destination to process (outputs silence)
+    workletNode.connect(audioContext.destination)
 
     // Create track ended handler
     const trackEndedHandler = () => {
@@ -346,7 +340,7 @@ async function startCapture(
       analyserNode,
       gainNode,
       limiterNode,
-      scriptProcessor,
+      workletNode,
       lufsCalculator,
       stream,
       updateInterval,
