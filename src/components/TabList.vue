@@ -1,0 +1,505 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useTabsStore, type CapturedTab, hasEnoughSamples } from '@/stores/tabs'
+import LufsMeter from './LufsMeter.vue'
+
+const tabsStore = useTabsStore()
+
+// Format gain value for display
+function formatGain(gainDb: number): string {
+  const prefix = gainDb >= 0 ? '+' : ''
+  return `${prefix}${gainDb.toFixed(1)} dB`
+}
+
+// Get favicon URL for a tab
+function getFaviconUrl(url: string): string {
+  try {
+    const urlObj = new URL(url)
+    return `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=32`
+  } catch {
+    return ''
+  }
+}
+
+// Truncate title for display
+function truncateTitle(title: string, maxLength = 30): string {
+  if (title.length <= maxLength) return title
+  return title.substring(0, maxLength - 3) + '...'
+}
+
+// Handle gain slider change
+async function handleGainChange(tab: CapturedTab, event: Event): Promise<void> {
+  const target = event.target as HTMLInputElement
+  const gainDb = parseFloat(target.value)
+  await tabsStore.setGain(tab.tabId, gainDb)
+}
+
+// Handle max gain change
+async function handleMaxGainChange(tab: CapturedTab, event: Event): Promise<void> {
+  const target = event.target as HTMLInputElement
+  const maxGainDb = parseFloat(target.value)
+  await tabsStore.setMaxGain(tab.tabId, maxGainDb)
+}
+
+// Handle remove button click
+async function handleRemove(tab: CapturedTab): Promise<void> {
+  await tabsStore.unregisterTab(tab.tabId)
+}
+
+// Handle reset LUFS button click
+async function handleResetLufs(tab: CapturedTab): Promise<void> {
+  await tabsStore.resetLufs(tab.tabId)
+}
+
+// Handle solo button click
+async function handleSolo(tab: CapturedTab): Promise<void> {
+  await tabsStore.toggleSolo(tab.tabId)
+}
+
+const tabs = computed(() => tabsStore.tabs)
+const targetLufs = computed(() => tabsStore.targetLufs)
+const soloTabId = computed(() => tabsStore.soloTabId)
+const hasSolo = computed(() => tabsStore.hasSolo)
+</script>
+
+<template>
+  <div class="tab-list">
+    <div v-if="tabs.length === 0" class="empty-state">
+      <div class="empty-icon">🔇</div>
+      <p>No tabs being monitored</p>
+      <p class="empty-hint">Click "Register Tab" to start monitoring audio</p>
+    </div>
+
+    <TransitionGroup name="tab-item" tag="div" class="tabs-container">
+      <div v-for="tab in tabs" :key="tab.tabId" class="tab-item" :class="{ 'is-solo': soloTabId === tab.tabId, 'is-muted': hasSolo && soloTabId !== tab.tabId }">
+        <div class="tab-header">
+          <img
+            v-if="tab.url"
+            :src="getFaviconUrl(tab.url)"
+            alt=""
+            class="tab-favicon"
+            @error="($event.target as HTMLImageElement).style.display = 'none'"
+          />
+          <span class="tab-title" :title="tab.title">{{ truncateTitle(tab.title) }}</span>
+          <div class="tab-actions">
+            <button
+              class="action-btn solo-btn"
+              :class="{ active: soloTabId === tab.tabId }"
+              @click="handleSolo(tab)"
+              :title="soloTabId === tab.tabId ? 'Un-solo (restore all)' : 'Solo (mute others)'"
+            >
+              S
+            </button>
+            <button
+              class="action-btn reset-btn"
+              @click="handleResetLufs(tab)"
+              title="Reset LUFS measurement"
+            >
+              ↺
+            </button>
+            <button
+              class="action-btn remove-btn"
+              @click="handleRemove(tab)"
+              title="Stop monitoring"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <LufsMeter
+          :momentary="tab.currentLufs.momentary"
+          :short-term="tab.currentLufs.shortTerm"
+          :integrated="tab.currentLufs.integrated"
+          :block-count="tab.currentLufs.blockCount"
+          :target-lufs="targetLufs"
+          :show-labels="true"
+          :compact="false"
+        />
+
+        <div class="volume-control">
+          <label class="volume-label">
+            <span class="volume-icon">🔊</span>
+            <span class="gain-value">{{ formatGain(tab.gainDb) }}</span>
+          </label>
+          <div class="slider-container">
+            <span class="slider-min">-20</span>
+            <input
+              type="range"
+              class="volume-slider"
+              min="-20"
+              :max="tab.maxGainDb"
+              step="0.5"
+              :value="tab.gainDb"
+              @input="handleGainChange(tab, $event)"
+            />
+            <span class="slider-max">{{ formatGain(tab.maxGainDb) }}</span>
+          </div>
+          <div class="max-gain-control">
+            <label class="max-gain-label">
+              <span>Max boost:</span>
+              <select
+                class="max-gain-select"
+                :value="tab.maxGainDb"
+                @change="handleMaxGainChange(tab, $event)"
+              >
+                <option :value="-6">-6 dB</option>
+                <option :value="0">0 dB (default)</option>
+                <option :value="3">+3 dB</option>
+                <option :value="6">+6 dB</option>
+                <option :value="9">+9 dB</option>
+                <option :value="12">+12 dB</option>
+                <option :value="15">+15 dB</option>
+                <option :value="18">+18 dB</option>
+                <option :value="20">+20 dB</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="tab-status" :class="{ capturing: tab.isCapturing, 'collecting': !hasEnoughSamples(tab.currentLufs) }">
+          <span class="status-dot"></span>
+          <span v-if="tab.isCapturing && !hasEnoughSamples(tab.currentLufs)" class="status-text">
+            Collecting samples...
+          </span>
+          <span v-else-if="tab.isCapturing" class="status-text">
+            Ready for auto-balance
+          </span>
+          <span v-else class="status-text">Paused</span>
+        </div>
+      </div>
+    </TransitionGroup>
+  </div>
+</template>
+
+<style scoped>
+.tab-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 32px 16px;
+  color: #718096;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.empty-hint {
+  margin-top: 8px !important;
+  font-size: 12px !important;
+  opacity: 0.7;
+}
+
+.tabs-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tab-item {
+  background: linear-gradient(145deg, #1e1e2f 0%, #252538 100%);
+  border-radius: 10px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.tab-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.tab-favicon {
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+}
+
+.tab-title {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tab-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.action-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #a0aec0;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.action-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+}
+
+.remove-btn:hover {
+  background: rgba(245, 101, 101, 0.2);
+  color: #f56565;
+}
+
+.reset-btn:hover {
+  background: rgba(66, 153, 225, 0.2);
+  color: #4299e1;
+}
+
+.solo-btn {
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.solo-btn:hover {
+  background: rgba(237, 137, 54, 0.2);
+  color: #ed8936;
+}
+
+.solo-btn.active {
+  background: #ed8936;
+  color: #1a1a2e;
+  box-shadow: 0 0 8px rgba(237, 137, 54, 0.5);
+}
+
+.solo-btn.active:hover {
+  background: #dd7824;
+}
+
+/* Solo/Muted states for tab items */
+.tab-item.is-solo {
+  border-color: rgba(237, 137, 54, 0.4);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(237, 137, 54, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.tab-item.is-muted {
+  opacity: 0.5;
+}
+
+.tab-item.is-muted .tab-title::after {
+  content: ' (muted)';
+  color: #f56565;
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.volume-control {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.volume-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 11px;
+  color: #718096;
+}
+
+.volume-icon {
+  font-size: 14px;
+}
+
+.gain-value {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  color: #a0aec0;
+  min-width: 60px;
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slider-min,
+.slider-max {
+  font-size: 9px;
+  color: #4a5568;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  width: 24px;
+}
+
+.slider-max {
+  text-align: right;
+  min-width: 50px;
+}
+
+.max-gain-control {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.max-gain-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: #718096;
+}
+
+.max-gain-select {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: #a0aec0;
+  font-size: 10px;
+  padding: 3px 6px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.max-gain-select:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.max-gain-select:focus {
+  border-color: #4299e1;
+  box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.2);
+}
+
+.max-gain-select option {
+  background: #1e1e2f;
+  color: #e2e8f0;
+}
+
+.volume-slider {
+  flex: 1;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: linear-gradient(to right, #4299e1, #48bb78, #ed8936, #f56565);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #e2e8f0;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.3),
+    0 0 0 2px rgba(255, 255, 255, 0.1);
+  transition: transform 0.1s ease;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.volume-slider::-webkit-slider-thumb:active {
+  transform: scale(0.95);
+}
+
+.tab-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 10px;
+  color: #718096;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #718096;
+}
+
+.tab-status.capturing .status-dot {
+  background: #48bb78;
+  box-shadow: 0 0 8px #48bb78;
+  animation: pulse 2s infinite;
+}
+
+.tab-status.collecting .status-dot {
+  background: #ed8936;
+  box-shadow: 0 0 8px #ed8936;
+  animation: pulse 1s infinite;
+}
+
+.tab-status.collecting {
+  color: #ed8936;
+}
+
+.status-text {
+  white-space: nowrap;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Transitions */
+.tab-item-enter-active,
+.tab-item-leave-active {
+  transition: all 0.3s ease;
+}
+
+.tab-item-enter-from {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.tab-item-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.tab-item-move {
+  transition: transform 0.3s ease;
+}
+</style>
+
