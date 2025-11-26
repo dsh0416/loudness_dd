@@ -49,7 +49,7 @@ interface LimiterSettings {
 }
 
 // State management
-let capturedTabs: Map<number, TabCaptureState> = new Map()
+const capturedTabs: Map<number, TabCaptureState> = new Map()
 let offscreenDocumentReady = false
 let offscreenReadyResolve: (() => void) | null = null
 
