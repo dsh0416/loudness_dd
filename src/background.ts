@@ -509,7 +509,8 @@ async function autoBalanceOnce(targetLufs: number): Promise<void> {
     if (!tabState.isCapturing) continue
 
     if (getSoloTabId() !== null && getSoloTabId() !== tabId) {
-      setTabGain(tabId, -100000)
+      setTabGain(tabId, -100)
+      continue
     }
 
     // Skip tabs without enough samples for reliable LUFS measurement
