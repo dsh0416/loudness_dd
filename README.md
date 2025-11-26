@@ -1,73 +1,144 @@
-# .
+# Loudness DD
 
-This template should help get you started developing with Vue 3 in Vite.
+<p align="center">
+  <strong>📊 LUFS-based Tab Volume Balancer for Chrome</strong>
+</p>
 
-## Recommended IDE Setup
+<p align="center">
+  A Chrome extension that automatically balances audio levels across browser tabs using professional broadcast-standard LUFS measurement.
+</p>
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+---
 
-## Recommended Browser Setup
+## ✨ Features
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+### Real-time LUFS Metering
+- **ITU-R BS.1770-4 compliant** loudness measurement
+- K-weighted filtering for perceptual accuracy
+- Displays momentary, short-term, and integrated loudness
+- Visual loudness meters with color-coded level indicators
 
-## Type Support for `.vue` Imports in TS
+### Auto Volume Balancing
+- **One-shot balance**: Instantly normalize all tabs to your target LUFS
+- **Continuous auto-balance**: Keep tabs balanced in real-time as content changes
+- Supports multiple target presets:
+  - 📺 **Broadcast** (-24 LUFS)
+  - 🎧 **Streaming** (-14 LUFS)
+  - 🎙️ **Podcast** (-16 LUFS)
+  - 🔊 **Loud** (-9 LUFS)
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+### Output Limiter
+- Prevents clipping when multiple loud sources play simultaneously
+- Configurable ceiling threshold (-6 dB to -0.1 dB)
+- Advanced controls: Attack, Release, and Knee parameters
+- Protects your ears and speakers from unexpected volume spikes
 
-## Customize configuration
+### Tab Management
+- Register and monitor multiple tabs simultaneously
+- Per-tab volume control with mute/unmute
+- Visual indicators for active captures
+- Clean, modern dark UI optimized for quick adjustments
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+## 🛠️ Tech Stack
 
-## Project Setup
+- **Vue 3** with Composition API
+- **TypeScript** for type safety
+- **Pinia** for state management
+- **Vite** + **CRXJS** for Chrome extension development
+- **Web Audio API** for real-time audio processing
+- **Chrome Extension Manifest V3**
 
-```sh
-pnpm install
-```
+## 📦 Installation
 
-### Compile and Hot-Reload for Development
+### From Source
 
-```sh
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/dsh0416/loudness_dd.git
+   cd loudness_dd
+   ```
+
+2. **Install dependencies**
+   ```bash
+   pnpm install
+   ```
+
+3. **Build the extension**
+   ```bash
+   pnpm build
+   ```
+
+4. **Load in Chrome**
+   - Open `chrome://extensions/`
+   - Enable "Developer mode"
+   - Click "Load unpacked"
+   - Select the `dist` folder
+
+### Development
+
+```bash
+# Start dev server with hot reload
 pnpm dev
-```
 
-### Type-Check, Compile and Minify for Production
-
-```sh
-pnpm build
-```
-
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
+# Run unit tests
 pnpm test:unit
-```
 
-### Run End-to-End Tests with [Playwright](https://playwright.dev)
-
-```sh
-# Install browsers for the first run
-npx playwright install
-
-# When testing on CI, must build the project first
-pnpm build
-
-# Runs the end-to-end tests
+# Run e2e tests
 pnpm test:e2e
-# Runs the tests only on Chromium
-pnpm test:e2e --project=chromium
-# Runs the tests of a specific file
-pnpm test:e2e tests/example.spec.ts
-# Runs the tests in debug mode
-pnpm test:e2e --debug
-```
 
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
+# Lint and format
 pnpm lint
+pnpm format
+
+# Type checking
+pnpm type-check
 ```
+
+## 🎯 Usage
+
+1. **Click the extension icon** to open the popup
+2. **Navigate to a tab** with audio content (YouTube, Spotify, etc.)
+3. **Click "Register Current Tab"** to start capturing audio
+4. **Repeat** for other tabs you want to monitor
+5. **Adjust the target LUFS** using the slider or presets
+6. **Click "Balance Now"** for one-time normalization, or **"Auto Balance"** for continuous adjustment
+
+## 📐 How It Works
+
+### LUFS Measurement
+The extension implements the ITU-R BS.1770-4 algorithm:
+
+1. **K-weighting Filter**: Two-stage biquad filter (high-shelf + high-pass) that models human frequency perception
+2. **Block Processing**: 400ms overlapping blocks with 75% overlap for smooth measurements
+3. **Gating**: Excludes quiet passages (-70 LUFS absolute threshold) and applies relative gating (-10 LU) for integrated loudness
+
+### Audio Capture
+- Uses Chrome's `tabCapture` API to intercept tab audio
+- Offscreen document processes audio in the background
+- Real-time gain adjustment through Web Audio API nodes
+
+## 🔧 Permissions
+
+The extension requires the following permissions:
+
+| Permission | Purpose |
+|------------|---------|
+| `tabCapture` | Capture audio from browser tabs |
+| `tabs` | Access tab information |
+| `activeTab` | Interact with the current tab |
+| `offscreen` | Background audio processing |
+| `storage` | Save user preferences |
+
+## 📄 License
+
+MIT
+
+## 👤 Author
+
+[@dsh0416](https://github.com/dsh0416)
+
+---
+
+<p align="center">
+  <em>Make your browsing experience sonically balanced 🎵</em>
+</p>
