@@ -14,7 +14,7 @@ Node engines: `^20.19.0 || >=22.12.0`
 
 ## What this project does
 Loudness DD is a Chrome MV3 extension that:
-- Captures audio from selected tabs, measures loudness in LUFS (BS.1770-4), and balances levels toward a target LUFS.
+- Captures audio from selected tabs, measures loudness in LUFS (BS.1770-5), and balances levels toward a target LUFS.
 - Provides a limiter to prevent clipping.
 - Lets users register tabs, toggle auto-balance, set target LUFS, and manage per‑tab gain.
 
@@ -32,7 +32,7 @@ Loudness DD is a Chrome MV3 extension that:
   - Config: [vite.config.ts](vite.config.ts), Manifest: [manifest.json](manifest.json)
 - State: Pinia stores live under [src/stores/](src/stores/)
 
-Permissions (MV3): `tabCapture`, `tabs`, `activeTab`, `offscreen`, `storage`. Host permissions: `<all_urls>`.
+Permissions (MV3): `tabCapture`, `tabs`, `activeTab`, `offscreen`, `storage`.
 
 ## Message flow (core contracts)
 Handshake:
