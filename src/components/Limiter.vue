@@ -512,6 +512,14 @@ function formatRatio(x: number): string {
 
 .advanced-controls {
   padding-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+/* Remove extra bottom spacing for grid items */
+.advanced-controls .control-row {
+  margin-bottom: 0;
 }
 
 /* Slide transition */
