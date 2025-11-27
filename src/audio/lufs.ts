@@ -1,6 +1,6 @@
 /**
  * LUFS (Loudness Units Full Scale) calculation module
- * Implements ITU-R BS.1770-4 algorithm for integrated loudness measurement
+ * Implements ITU-R BS.1770-5 algorithm for integrated loudness measurement
  */
 
 // K-weighting filter coefficients for 48kHz sample rate
@@ -16,7 +16,8 @@ const HIGH_PASS_A: [number, number, number] = [1.0, -1.99004745483398, 0.9900722
 const CHANNEL_WEIGHTS: Record<number, number[]> = {
   1: [1.0], // Mono
   2: [1.0, 1.0], // Stereo
-  6: [1.0, 1.0, 1.0, 0.0, 1.41, 1.41], // 5.1 surround
+  // 5.1 (L, R, C, LFE, Ls, Rs) per BS.1770-5: surrounds have higher weight; LFE excluded
+  6: [1.0, 1.0, 1.0, 0.0, 1.5, 1.5],
 }
 
 // Absolute threshold for gating (-70 LUFS)

@@ -110,7 +110,7 @@ pnpm type-check
 ## 📐 How It Works
 
 ### LUFS Measurement
-The extension implements the ITU-R BS.1770-4 algorithm:
+The extension implements the ITU-R BS.1770-5 algorithm:
 
 1. **K-weighting Filter**: Two-stage biquad filter (high-shelf + high-pass) that models human frequency perception
 2. **Block Processing**: 400ms overlapping blocks with 75% overlap for smooth measurements
