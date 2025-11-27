@@ -8,9 +8,6 @@ declare function registerProcessor(
   processorCtor: new () => unknown,
 ): void
 
-// Provided by the AudioWorklet global scope (sample rate of the AudioContext)
-declare const sampleRate: number
-
 // Exact ITU-R BS.1770 K-weighting coefficients (as used in app runtime)
 const HIGH_SHELF_B: [number, number, number] = [
   1.53512485958697, -2.69169618940638, 1.19839281085285,
@@ -67,10 +64,13 @@ class LufsProcessor extends AudioWorkletProcessor {
     this.channels = 2
     const blockMs = 400
     const overlap = 0.75
-    this.blockSizeSamples = Math.max(128, Math.floor((blockMs / 1000) * sampleRate))
+    const sr =
+      (globalThis as unknown as { sampleRate?: number }).sampleRate ??
+      48000
+    this.blockSizeSamples = Math.max(128, Math.floor((blockMs / 1000) * sr))
     this.hopSizeSamples = Math.max(1, Math.floor(this.blockSizeSamples * (1 - overlap)))
     this.shortTermBlockCount = Math.ceil(3000 / (blockMs * (1 - overlap)))
-    this.updateIntervalSamples = Math.max(128, Math.floor(0.1 * sampleRate)) // ~10 Hz
+    this.updateIntervalSamples = Math.max(128, Math.floor(0.1 * sr)) // ~10 Hz
 
     this.hs_x1 = new Float32Array(this.channels)
     this.hs_x2 = new Float32Array(this.channels)

@@ -36,6 +36,9 @@ jobs:
 
       - name: Lint
         run: pnpm run lint
+      
+      - name: Type check
+        run: pnpm run type-check
 
       - name: Unit tests
         run: pnpm run test:unit -- --reporter=dot

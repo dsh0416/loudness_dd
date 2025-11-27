@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 import { mount } from '@vue/test-utils'
 import App from '../App.vue'
+import { i18n } from '../i18n'
 
 vi.mock('@/stores/tabs', () => {
   return {
@@ -35,7 +36,11 @@ describe('App', () => {
   })
 
   it('mounts and renders the header title', () => {
-    const wrapper = mount(App)
+    const wrapper = mount(App, {
+      global: {
+        plugins: [i18n],
+      },
+    })
     expect(wrapper.text()).toContain('Loudness DD')
   })
 })
