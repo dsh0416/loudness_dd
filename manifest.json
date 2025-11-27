@@ -3,8 +3,18 @@
   "name": "Loudness DD",
   "version": "1.0.0",
   "description": "LUFS-based tab volume balancer for Chrome",
+  "icons": {
+    "16": "logo.png",
+    "32": "logo.png",
+    "48": "logo.png",
+    "128": "logo.png"
+  },
   "action": {
-    "default_popup": "index.html"
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "logo.png",
+      "32": "logo.png"
+    }
   },
   "background": {
     "service_worker": "src/background.ts",
