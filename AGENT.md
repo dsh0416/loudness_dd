@@ -22,10 +22,10 @@ Loudness DD is a Chrome MV3 extension that:
 - MV3 Service Worker: background coordination, lifecycle, storage, and messaging.
   - File: [src/background.ts](src/background.ts)
 - Offscreen Document: runs Web Audio graph (worklet + compressor/limiter + gain), calculates LUFS, sends updates.
-  - Files: [src/offscreen/offscreen.html](src/offscreen/offscreen.html), [src/offscreen/offscreen.ts](src/offscreen/offscreen.ts)
+  - Files: [offscreen.html](offscreen.html), [src/offscreen.ts](src/offscreen.ts)
 - Audio/LUFS engine: ITU-R BS.1770-4 implementation and helpers.
   - File: [src/audio/lufs.ts](src/audio/lufs.ts)
-  - Worklet: [public/lufs-processor.js](public/lufs-processor.js) (loaded via `chrome.runtime.getURL`)
+  - Worklet: [src/worklets/lufs-processor.ts](src/worklets/lufs-processor.ts)
 - Popup UI: Vue 3 + Pinia app that communicates with background via `chrome.runtime.sendMessage`.
   - Entry/UI: [src/main.ts](src/main.ts), [src/App.vue](src/App.vue), [src/components/](src/components/)
 - Build & packaging: Vite + CRXJS plugin; release zip produced automatically.
@@ -125,11 +125,11 @@ Load in Chrome:
 - Add/modify a message:
   1) Define payload interface(s) next to handler.
   2) Extend background switch in [src/background.ts](src/background.ts).
-  3) Extend offscreen switch in [src/offscreen/offscreen.ts](src/offscreen/offscreen.ts) when targeted.
+  3) Extend offscreen switch in [src/offscreen.ts](src/offscreen.ts) when targeted.
   4) Update any popup callers.
 
 - Adjust limiter defaults:
-  1) Update offscreen defaults in [src/offscreen/offscreen.ts](src/offscreen/offscreen.ts) (`globalLimiterSettings`).
+  1) Update offscreen defaults in [src/offscreen.ts](src/offscreen.ts) (`globalLimiterSettings`).
   2) Ensure UI shows current values via `GET_LIMITER_SETTINGS`.
   3) Add coverage for edge values (e.g., extreme ratios, fast attack).
 
@@ -143,11 +143,11 @@ Suggested gates before merging:
 
 ## Troubleshooting
 - Offscreen never starts:
-  - Ensure `OFFSCREEN_READY` is received by background and `ensureOffscreenDocument()` points at [src/offscreen/offscreen.html](src/offscreen/offscreen.html).
+  - Ensure `OFFSCREEN_READY` is received by background and `ensureOffscreenDocument()` points at [offscreen.html](offscreen.html).
   - Verify permissions include `offscreen`.
 - No LUFS readings:
   - Check `blockCount`; integrated LUFS uses gating and may remain `-Infinity` until enough valid blocks.
-  - Confirm worklet loads from `public/lufs-processor.js`.
+  - Confirm worklet loads from `src/worklets/lufs-processor.ts`.
 - Stream ends unexpectedly:
   - Look for `STREAM_ENDED` reason; tabs navigating/closing stop tracks. Ensure cleanup runs without exceptions.
 - Audio graph silent:

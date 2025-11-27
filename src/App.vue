@@ -4,6 +4,8 @@ import { useTabsStore } from '@/stores/tabs'
 import TabList from '@/components/TabList.vue'
 import AutoBalance from '@/components/AutoBalance.vue'
 
+const version = __APP_VERSION__
+
 const tabsStore = useTabsStore()
 
 const isLoading = computed(() => tabsStore.isLoading)
@@ -39,7 +41,7 @@ onUnmounted(() => {
         <span class="logo-icon">📊</span>
         <h1>Loudness DD</h1>
       </div>
-      <span class="version">v1.0.0</span>
+      <span class="version"> v{{ version }}</span>
     </header>
 
     <!-- Error Banner -->
@@ -74,7 +76,7 @@ onUnmounted(() => {
 
     <!-- Footer -->
     <footer class="app-footer">
-      <span>LUFS-based Tab Volume Balancer</span>
+      <span> Loudness DD </span>
       <span class="separator">•</span>
       <a href="https://github.com/dsh0416" target="_blank" rel="noopener noreferrer">@dsh0416</a>
     </footer>

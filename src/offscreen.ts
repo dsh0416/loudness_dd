@@ -3,8 +3,8 @@
  * Handles Web Audio API operations that aren't available in service workers
  */
 
-import { LufsCalculator, dbToGain } from '../audio/lufs'
-import lufsProcessorUrl from '../worklets/lufs-processor?worker&url'
+import { LufsCalculator, dbToGain } from '@/audio/lufs'
+import lufsProcessorUrl from '@/worklets/lufs-processor?worker&url'
 
 // Global limiter settings (applies to all tabs)
 interface LimiterSettings {

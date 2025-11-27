@@ -77,7 +77,7 @@ let soloTabId: number | null = null
 let cleanupInterval: ReturnType<typeof setInterval> | null = null
 
 // Offscreen document path
-const OFFSCREEN_DOCUMENT_PATH = 'src/offscreen/offscreen.html'
+const OFFSCREEN_DOCUMENT_PATH = 'offscreen.html'
 
 /**
  * Update the extension badge to show current status
