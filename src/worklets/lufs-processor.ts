@@ -48,6 +48,7 @@ class LufsProcessor extends AudioWorkletProcessor {
   sumSquares: Float64Array // per-channel sum of y^2 over window
   samplesSinceLastBlock: number
   samplesSinceLastUpdate: number
+  samplesAccumulated: number // Track warm-up: how many samples in ring buffer
 
   // Histories
   blockLoudnesses: number[]
@@ -82,6 +83,7 @@ class LufsProcessor extends AudioWorkletProcessor {
     this.sumSquares = new Float64Array(this.channels)
     this.samplesSinceLastBlock = 0
     this.samplesSinceLastUpdate = 0
+    this.samplesAccumulated = 0
 
     this.blockLoudnesses = []
     this.shortTermBlocks = []
@@ -189,9 +191,16 @@ class LufsProcessor extends AudioWorkletProcessor {
       if (this.ringIndex >= this.blockSizeSamples) this.ringIndex = 0
       this.samplesSinceLastBlock++
       this.samplesSinceLastUpdate++
+      // Track warm-up: ring buffer fills up to blockSizeSamples
+      if (this.samplesAccumulated < this.blockSizeSamples) {
+        this.samplesAccumulated++
+      }
 
-      // Create a new block every hop
-      if (this.samplesSinceLastBlock >= this.hopSizeSamples) {
+      // Create a new block every hop, but only after ring buffer is full
+      if (
+        this.samplesSinceLastBlock >= this.hopSizeSamples &&
+        this.samplesAccumulated >= this.blockSizeSamples
+      ) {
         this.samplesSinceLastBlock -= this.hopSizeSamples
         const blockLufs = this.computeCurrentBlockLufs()
         if (blockLufs > ABSOLUTE_THRESHOLD) {
@@ -302,6 +311,7 @@ class LufsProcessor extends AudioWorkletProcessor {
     this.ringIndex = 0
     this.samplesSinceLastBlock = 0
     this.samplesSinceLastUpdate = 0
+    this.samplesAccumulated = 0
     this.blockLoudnesses = []
     this.shortTermBlocks = []
     this.blockCount = 0

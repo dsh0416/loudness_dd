@@ -54,6 +54,7 @@ describe('LUFS algorithm parity (worklet-style vs LufsCalculator)', () => {
     const sumSquares = new Float64Array(2)
     let ringIndex = 0
     let sinceBlock = 0
+    let samplesAccumulated = 0 // Track warm-up: how many samples in ring buffer
 
     const blockLufs: number[] = []
 
@@ -122,7 +123,12 @@ describe('LUFS algorithm parity (worklet-style vs LufsCalculator)', () => {
       ringIndex++
       if (ringIndex >= blockSize) ringIndex = 0
       sinceBlock++
-      if (sinceBlock >= hop) {
+      // Track warm-up: ring buffer fills up to blockSize
+      if (samplesAccumulated < blockSize) {
+        samplesAccumulated++
+      }
+      // Only emit blocks after ring buffer is full
+      if (sinceBlock >= hop && samplesAccumulated >= blockSize) {
         sinceBlock -= hop
         const mean0 = (sumSquares[0] ?? 0) / blockSize
         const mean1 = (sumSquares[1] ?? 0) / blockSize
@@ -151,7 +157,7 @@ describe('LUFS algorithm parity (worklet-style vs LufsCalculator)', () => {
 
     // Expect close results
     const diff = Math.abs((baseline || -Infinity) - (integrated || -Infinity))
-    expect(diff).toBeLessThanOrEqual(0.2)
+    expect(diff).toBeLessThanOrEqual(0.1)
   })
 })
 
