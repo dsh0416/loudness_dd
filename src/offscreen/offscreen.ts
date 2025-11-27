@@ -4,6 +4,7 @@
  */
 
 import { LufsCalculator, dbToGain } from '../audio/lufs'
+import lufsProcessorUrl from '../worklets/lufs-processor?worker&url'
 
 // Global limiter settings (applies to all tabs)
 interface LimiterSettings {
@@ -272,9 +273,8 @@ async function startCapture(
       channels: 2, // Assume stereo
     })
 
-    // Load the AudioWorklet module for LUFS processing
-    // The processor file is in the public folder and copied to the extension root
-    await audioContext.audioWorklet.addModule(chrome.runtime.getURL('lufs-processor.js'))
+    // Load the AudioWorklet module for LUFS processing via module URL
+    await audioContext.audioWorklet.addModule(lufsProcessorUrl)
 
     // Create AudioWorkletNode for LUFS analysis
     const workletNode = new AudioWorkletNode(audioContext, 'lufs-processor', {
@@ -464,13 +464,13 @@ function resetLufs(tabId: number): void {
 /**
  * Check if a tab's capture is still active
  */
-function isCaptureActive(tabId: number): boolean {
-  const processor = processors.get(tabId)
-  if (!processor) return false
-
-  const track = processor.stream.getAudioTracks()[0]
-  return track?.readyState === 'live' && processor.audioContext.state !== 'closed'
-}
+// function isCaptureActive(tabId: number): boolean {
+//   const processor = processors.get(tabId)
+//   if (!processor) return false
+//
+//   const track = processor.stream.getAudioTracks()[0]
+//   return track?.readyState === 'live' && processor.audioContext.state !== 'closed'
+// }
 
 // Listen for messages from background
 chrome.runtime.onMessage.addListener(

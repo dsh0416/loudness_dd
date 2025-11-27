@@ -3,7 +3,6 @@ import { onMounted, onUnmounted, computed } from 'vue'
 import { useTabsStore } from '@/stores/tabs'
 import TabList from '@/components/TabList.vue'
 import AutoBalance from '@/components/AutoBalance.vue'
-import Limiter from '@/components/Limiter.vue'
 
 const tabsStore = useTabsStore()
 

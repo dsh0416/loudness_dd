@@ -195,12 +195,12 @@ function startCleanupInterval(): void {
 /**
  * Stop cleanup interval
  */
-function stopCleanupInterval(): void {
-  if (cleanupInterval) {
-    clearInterval(cleanupInterval)
-    cleanupInterval = null
-  }
-}
+// function stopCleanupInterval(): void {
+//   if (cleanupInterval) {
+//     clearInterval(cleanupInterval)
+//     cleanupInterval = null
+//   }
+// }
 
 /**
  * Wait for offscreen document to be ready
@@ -450,7 +450,7 @@ async function toggleSolo(tabId: number): Promise<{ success: boolean; soloTabId:
     tabState.isSolo = false
 
     // Restore all tabs to their saved gains
-    for (const [_tid, state] of capturedTabs) {
+    for (const state of capturedTabs.values()) {
       state.isSolo = false
     }
   } else {
@@ -496,7 +496,7 @@ async function clearSolo(): Promise<void> {
   soloTabId = null
 
   // Restore all tabs to their saved gains
-  for (const [tid, state] of capturedTabs) {
+  for (const state of capturedTabs.values()) {
     state.isSolo = false
   }
 }

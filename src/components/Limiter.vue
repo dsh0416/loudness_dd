@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useTabsStore } from '@/stores/tabs'
 
 const tabsStore = useTabsStore()
+defineOptions({ name: 'LimiterControl' })
 
 const isEnabled = computed(() => tabsStore.isLimiterEnabled)
 const threshold = computed(() => tabsStore.limiterThreshold)

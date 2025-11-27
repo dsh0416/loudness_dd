@@ -1,9 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+type LufsWorkletCtor = new () => {
+  bufferSize: number
+  buffer: Float32Array
+  bufferIndex: number
+  process: (
+    inputs: Array<Array<Float32Array | undefined>>,
+    outputs: Array<Array<Float32Array>>,
+  ) => boolean
+}
+
 function setupWorklet() {
   const postedMessages: Array<{ type: string; samples?: Float32Array }> = []
 
-  ;(globalThis as any).AudioWorkletProcessor = class {
+  const g = globalThis as Record<string, unknown>
+  class AudioWorkletProcessorMock {
     port: { postMessage: (data: unknown) => void }
     constructor() {
       this.port = {
@@ -13,10 +24,11 @@ function setupWorklet() {
       }
     }
   }
+  g.AudioWorkletProcessor = AudioWorkletProcessorMock as unknown
 
-  ;(globalThis as any).registerProcessor = vi.fn((name: string, ctor: unknown) => {
-    ;(globalThis as any).__Worklet = { name, ctor }
-  })
+  g.registerProcessor = vi.fn((name: string, ctor: unknown) => {
+    g.__Worklet = { name, ctor } as { name: string; ctor: unknown }
+  }) as unknown
 
   return { postedMessages }
 }
@@ -24,10 +36,11 @@ function setupWorklet() {
 async function loadProcessorCtor() {
   vi.resetModules()
   const { postedMessages } = setupWorklet()
-  await import('../../public/lufs-processor.js')
-  const w = (globalThis as any).__Worklet
+  await import('../../src/worklets/lufs-processor.ts')
+  const g = globalThis as Record<string, unknown>
+  const w = g.__Worklet as { name: string; ctor: LufsWorkletCtor } | undefined
   expect(w).toBeTruthy()
-  return { ctor: w.ctor as new () => any, name: w.name as string, postedMessages }
+  return { ctor: w!.ctor, name: w!.name as string, postedMessages }
 }
 
 function makeFrames(length: number, stereo = true) {
@@ -60,7 +73,7 @@ describe('lufs-processor AudioWorklet', () => {
     expect(keepAlive).toBe(true)
 
     expect(postedMessages.length).toBe(1)
-    const msg = postedMessages[0]
+    const msg = postedMessages[0]!
     expect(msg.type).toBe('samples')
     expect(msg.samples).toBeInstanceOf(Float32Array)
     expect(msg.samples!.length).toBe(16) // bufferSize * 2 for stereo interleaved
@@ -77,7 +90,7 @@ describe('lufs-processor AudioWorklet', () => {
     const outputs = [[new Float32Array(8), new Float32Array(8)]]
     proc.process([[left, right]], outputs)
 
-    const samples = postedMessages[0].samples!
+    const samples = postedMessages[0]!.samples!
     for (let i = 0; i < 8; i++) {
       expect(samples[i * 2]).toBe(left[i])
       expect(samples[i * 2 + 1]).toBe(right![i])
@@ -95,7 +108,7 @@ describe('lufs-processor AudioWorklet', () => {
     const outputs = [[new Float32Array(8), new Float32Array(8)]]
     proc.process([[left]], outputs)
 
-    const samples = postedMessages[0].samples!
+    const samples = postedMessages[0]!.samples!
     for (let i = 0; i < 8; i++) {
       expect(samples[i * 2]).toBe(left[i]) // L
       expect(samples[i * 2 + 1]).toBe(left[i]) // R mirrors L
