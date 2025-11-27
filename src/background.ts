@@ -544,7 +544,7 @@ function startContinuousAutoBalance(): void {
     if (capturedTabs.size === 0) return
 
     await autoBalanceOnce(autoBalanceSettings.targetLufs)
-  }, 500)
+  }, 100)
 }
 
 /**

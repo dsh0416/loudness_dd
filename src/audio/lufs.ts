@@ -25,6 +25,11 @@ const ABSOLUTE_THRESHOLD = -70.0
 // Relative threshold offset (-10 LU)
 const RELATIVE_THRESHOLD_OFFSET = -10.0
 
+// Cap for integrated loudness block history to prevent unbounded growth.
+// With 400ms blocks at 75% overlap, hop is ~100ms => 10 blocks/sec.
+// 600 blocks ≈ 1 minutes window.
+const MAX_INTEGRATED_BLOCKS = 600
+
 export interface LufsCalculatorOptions {
   sampleRate: number
   channels: number
@@ -189,6 +194,10 @@ export class LufsCalculator {
     // Store for integrated loudness calculation (only if above absolute threshold)
     if (blockLoudness > ABSOLUTE_THRESHOLD) {
       this.blockLoudnesses.push(blockLoudness)
+      // Prevent unbounded growth for live streams
+      if (this.blockLoudnesses.length > MAX_INTEGRATED_BLOCKS) {
+        this.blockLoudnesses.shift()
+      }
     }
 
     // Store for short-term loudness

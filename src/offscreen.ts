@@ -184,6 +184,13 @@ async function cleanupProcessor(tabId: number): Promise<void> {
 
   // Disconnect nodes
   try {
+    // Close and detach worklet message port to allow GC
+    try {
+      processor.workletNode.port.onmessage = null
+      processor.workletNode.port.close()
+    } catch {
+      // Ignore port close errors
+    }
     processor.workletNode.disconnect()
     processor.sourceNode.disconnect()
     processor.gainNode.disconnect()

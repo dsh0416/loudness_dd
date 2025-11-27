@@ -55,8 +55,10 @@ class LufsProcessor extends AudioWorkletProcessor {
 
       // When buffer is full, send to main thread
       if (this.bufferIndex >= this.bufferSize) {
-        const samples = this.buffer.slice(0, this.bufferIndex * 2)
-        this.port.postMessage({ type: 'samples', samples })
+        const length = this.bufferIndex * 2
+        const samples = new Float32Array(length)
+        samples.set(this.buffer.subarray(0, length))
+        this.port.postMessage({ type: 'samples', samples }, [samples.buffer])
         this.bufferIndex = 0
       }
     }
