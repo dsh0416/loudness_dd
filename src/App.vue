@@ -64,7 +64,7 @@ onUnmounted(() => {
       <AutoBalance v-if="hasCaptures" />
 
       <!-- Limiter Controls -->
-      <Limiter v-if="hasCaptures" />
+      <!-- <Limiter v-if="hasCaptures" /> -->
 
       <!-- Tab List -->
       <section class="tabs-section">

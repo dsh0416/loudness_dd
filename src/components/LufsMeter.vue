@@ -246,7 +246,7 @@ const sampleProgress = computed(() => Math.min(100, (safeBlockCount.value / MIN_
 
 .meter-track {
   flex: 1;
-  height: 12px;
+  height: 8px;
   background: var(--color-track);
   border-radius: 3px;
   position: relative;
@@ -295,14 +295,6 @@ const sampleProgress = computed(() => Math.min(100, (safeBlockCount.value / MIN_
 .integrated-value.dimmed {
   color: #718096;
   font-style: italic;
-}
-
-.meter-row.integrated .meter-track {
-  height: 16px;
-}
-
-.meter-row.integrated .meter-bar {
-  box-shadow: 0 0 12px currentColor;
 }
 
 .scale {
