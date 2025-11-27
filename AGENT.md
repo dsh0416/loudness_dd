@@ -8,7 +8,6 @@ Audience: coding agents (Cursor/Copilot) and maintainers. This is a high-signal,
 - Build (type-check + bundle): `pnpm build`
 - Preview build: `pnpm preview`
 - Unit tests: `pnpm test:unit`
-- E2E tests (Playwright): `pnpm test:e2e`
 - Lint/format/type-check: `pnpm lint`, `pnpm format`, `pnpm type-check`
 
 Node engines: `^20.19.0 || >=22.12.0`
@@ -137,8 +136,6 @@ Load in Chrome:
 ## Tests
 - Unit (`vitest` + `@vue/test-utils`, `jsdom`): `pnpm test:unit`
   - Location: [src/__tests__/](src/__tests__)
-- E2E (`playwright`): `pnpm test:e2e`
-  - Location: [e2e/](e2e)
 
 Suggested gates before merging:
 - Green type-check, lint, unit tests.
