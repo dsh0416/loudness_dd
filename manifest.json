@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Loudness DD",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "LUFS-based tab volume balancer for Chrome",
   "icons": {
     "16": "logo.png",
