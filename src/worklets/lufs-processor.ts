@@ -3,18 +3,13 @@ declare class AudioWorkletProcessor {
   readonly port: MessagePort
   constructor()
 }
-declare function registerProcessor(
-  name: string,
-  processorCtor: new () => unknown,
-): void
+declare function registerProcessor(name: string, processorCtor: new () => unknown): void
 
 // Exact ITU-R BS.1770 K-weighting coefficients (as used in app runtime)
 const HIGH_SHELF_B: [number, number, number] = [
   1.53512485958697, -2.69169618940638, 1.19839281085285,
 ]
-const HIGH_SHELF_A: [number, number, number] = [
-  1.0, -1.69065929318241, 0.73248077421585,
-]
+const HIGH_SHELF_A: [number, number, number] = [1.0, -1.69065929318241, 0.73248077421585]
 const HIGH_PASS_B: [number, number, number] = [1.0, -2.0, 1.0]
 const HIGH_PASS_A: [number, number, number] = [1.0, -1.99004745483398, 0.99007225036621]
 
@@ -64,9 +59,7 @@ class LufsProcessor extends AudioWorkletProcessor {
     this.channels = 2
     const blockMs = 400
     const overlap = 0.75
-    const sr =
-      (globalThis as unknown as { sampleRate?: number }).sampleRate ??
-      48000
+    const sr = (globalThis as unknown as { sampleRate?: number }).sampleRate ?? 48000
     this.blockSizeSamples = Math.max(128, Math.floor((blockMs / 1000) * sr))
     this.hopSizeSamples = Math.max(1, Math.floor(this.blockSizeSamples * (1 - overlap)))
     this.shortTermBlockCount = Math.ceil(3000 / (blockMs * (1 - overlap)))
@@ -82,7 +75,10 @@ class LufsProcessor extends AudioWorkletProcessor {
     this.hp_y2 = new Float32Array(this.channels)
 
     this.ringIndex = 0
-    this.ringSquares = Array.from({ length: this.channels }, () => new Float32Array(this.blockSizeSamples))
+    this.ringSquares = Array.from(
+      { length: this.channels },
+      () => new Float32Array(this.blockSizeSamples),
+    )
     this.sumSquares = new Float64Array(this.channels)
     this.samplesSinceLastBlock = 0
     this.samplesSinceLastUpdate = 0
@@ -313,5 +309,3 @@ class LufsProcessor extends AudioWorkletProcessor {
 }
 
 registerProcessor('lufs-processor', LufsProcessor)
-
-

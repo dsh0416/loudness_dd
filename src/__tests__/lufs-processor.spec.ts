@@ -1,13 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+
 import { LufsCalculator } from '@/audio/lufs'
 
 // Exact coefficients (same as worklet)
 const HIGH_SHELF_B: [number, number, number] = [
   1.53512485958697, -2.69169618940638, 1.19839281085285,
 ]
-const HIGH_SHELF_A: [number, number, number] = [
-  1.0, -1.69065929318241, 0.73248077421585,
-]
+const HIGH_SHELF_A: [number, number, number] = [1.0, -1.69065929318241, 0.73248077421585]
 const HIGH_PASS_B: [number, number, number] = [1.0, -2.0, 1.0]
 const HIGH_PASS_A: [number, number, number] = [1.0, -1.99004745483398, 0.99007225036621]
 const CHANNEL_WEIGHTS: [number, number] = [1.0, 1.0]
@@ -293,5 +292,3 @@ describe('lufs-processor AudioWorklet', () => {
     expect(postedMessages.length).toBe(0)
   })
 })
-
-

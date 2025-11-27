@@ -1,4 +1,5 @@
 import { createI18n } from 'vue-i18n'
+
 import en from './locales/en.json'
 import zhCN from './locales/zh-CN.json'
 
@@ -12,5 +13,3 @@ export const i18n = createI18n({
     'zh-CN': zhCN,
   },
 })
-
-

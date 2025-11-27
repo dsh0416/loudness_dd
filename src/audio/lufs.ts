@@ -5,7 +5,9 @@
 
 // K-weighting filter coefficients for 48kHz sample rate
 // Stage 1: High-shelf filter (+4dB at high frequencies)
-const HIGH_SHELF_B: [number, number, number] = [1.53512485958697, -2.69169618940638, 1.19839281085285]
+const HIGH_SHELF_B: [number, number, number] = [
+  1.53512485958697, -2.69169618940638, 1.19839281085285,
+]
 const HIGH_SHELF_A: [number, number, number] = [1.0, -1.69065929318241, 0.73248077421585]
 
 // Stage 2: High-pass filter (removes DC and sub-bass)
@@ -79,7 +81,8 @@ export class LufsCalculator {
     this.hopSizeSamples = Math.floor(this.blockSizeSamples * (1 - overlap))
     this.shortTermBlockCount = Math.ceil(3000 / (blockMs * (1 - overlap)))
 
-    this.channelWeights = CHANNEL_WEIGHTS[this.channels] ?? Array(this.channels).fill(1.0) as number[]
+    this.channelWeights =
+      CHANNEL_WEIGHTS[this.channels] ?? (Array(this.channels).fill(1.0) as number[])
 
     // Initialize filter states
     this.highShelfStates = Array.from({ length: this.channels }, () => ({
@@ -139,18 +142,8 @@ export class LufsCalculator {
         if (!highShelfState || !highPassState || !channelBuffer) continue
 
         // Apply K-weighting (high-shelf then high-pass)
-        const afterHighShelf = this.applyBiquad(
-          sample,
-          HIGH_SHELF_B,
-          HIGH_SHELF_A,
-          highShelfState,
-        )
-        const filtered = this.applyBiquad(
-          afterHighShelf,
-          HIGH_PASS_B,
-          HIGH_PASS_A,
-          highPassState,
-        )
+        const afterHighShelf = this.applyBiquad(sample, HIGH_SHELF_B, HIGH_SHELF_A, highShelfState)
+        const filtered = this.applyBiquad(afterHighShelf, HIGH_PASS_B, HIGH_PASS_A, highPassState)
 
         channelBuffer[this.bufferIndex] = filtered
       }

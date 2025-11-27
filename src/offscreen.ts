@@ -98,10 +98,7 @@ type Message =
 /**
  * Apply limiter settings to a DynamicsCompressorNode
  */
-function applyLimiterSettings(
-  node: DynamicsCompressorNode,
-  settings: LimiterSettings,
-): void {
+function applyLimiterSettings(node: DynamicsCompressorNode, settings: LimiterSettings): void {
   const time = node.context.currentTime
 
   if (settings.enabled) {

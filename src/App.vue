@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useTabsStore } from '@/stores/tabs'
+
+import AutoBalance from '@/components/AutoBalance.vue'
 import Limiter from '@/components/Limiter.vue'
 import TabList from '@/components/TabList.vue'
-import AutoBalance from '@/components/AutoBalance.vue'
+import { useTabsStore } from '@/stores/tabs'
 
 const version = __APP_VERSION__
 
@@ -36,7 +37,7 @@ onMounted(() => {
   // get current locale
   const currentLocale = locale.value
   if (currentLocale) {
-    const language = languages.find(l => l.code === currentLocale)
+    const language = languages.find((l) => l.code === currentLocale)
     if (language) {
       locale.value = language.code
     } else {
@@ -59,7 +60,7 @@ onUnmounted(() => {
         <span class="logo-icon">📊</span>
         <h1>{{ t('popup.title') }}</h1>
       </div>
-      <div style="display: flex; align-items: center; gap: 8px;">
+      <div style="display: flex; align-items: center; gap: 8px">
         <select v-model="locale" class="lang-select">
           <option v-for="l in languages" :key="l.code" :value="l.code">{{ l.name }}</option>
         </select>
@@ -81,7 +82,9 @@ onUnmounted(() => {
       <!-- Register Tab Button -->
       <button class="register-btn" :disabled="isLoading" @click="handleRegisterTab">
         <span class="btn-icon">{{ isLoading ? '⏳' : '➕' }}</span>
-        <span class="btn-text">{{ isLoading ? t('popup.register.registering') : t('popup.register.register') }}</span>
+        <span class="btn-text">{{
+          isLoading ? t('popup.register.registering') : t('popup.register.register')
+        }}</span>
       </button>
 
       <!-- Auto Balance Controls -->
@@ -101,7 +104,9 @@ onUnmounted(() => {
     <footer class="app-footer">
       <span> {{ t('footer.brand') }} </span>
       <span class="separator">•</span>
-      <a href="https://github.com/dsh0416" target="_blank" rel="noopener noreferrer">{{ t('footer.author') }}</a>
+      <a href="https://github.com/dsh0416" target="_blank" rel="noopener noreferrer">{{
+        t('footer.author')
+      }}</a>
     </footer>
   </div>
 </template>

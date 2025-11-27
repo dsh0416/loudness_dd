@@ -1,5 +1,5 @@
-import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
 
 // Minimum blocks required for reliable LUFS-I measurement
 export const MIN_BLOCKS_FOR_RELIABLE_LUFS = 10

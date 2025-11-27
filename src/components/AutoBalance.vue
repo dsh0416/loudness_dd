@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+
 import { useTabsStore } from '@/stores/tabs'
 
 const tabsStore = useTabsStore()
@@ -54,7 +55,7 @@ async function applyPreset(value: number): Promise<void> {
   <div class="auto-balance">
     <div class="section-header">
       <h3>{{ t('autobalance.title') }}</h3>
-      <div class="average-lufs" v-if="hasCaptures">
+      <div v-if="hasCaptures" class="average-lufs">
         <span class="label">{{ t('autobalance.avg') }}</span>
         <span class="value">{{ formatLufs(averageLufs) }} LUFS</span>
       </div>
@@ -114,7 +115,9 @@ async function applyPreset(value: number): Promise<void> {
         @click="handleToggleAutoBalance"
       >
         <span class="btn-icon">{{ isAutoBalancing ? '⏸️' : '🔄' }}</span>
-        <span class="btn-text">{{ isAutoBalancing ? t('autobalance.auto.stop') : t('autobalance.auto.start') }}</span>
+        <span class="btn-text">{{
+          isAutoBalancing ? t('autobalance.auto.stop') : t('autobalance.auto.start')
+        }}</span>
       </button>
     </div>
 

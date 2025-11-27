@@ -23,11 +23,5 @@ export default defineManifest({
     service_worker: 'src/background.ts',
     type: 'module',
   },
-  permissions: [
-    'tabCapture',
-    'tabs',
-    'activeTab',
-    'offscreen',
-    'storage',
-  ],
+  permissions: ['tabCapture', 'tabs', 'activeTab', 'offscreen', 'storage'],
 })

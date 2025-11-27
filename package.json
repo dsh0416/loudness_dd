@@ -19,8 +19,8 @@
   "dependencies": {
     "pinia": "^3.0.4",
     "vue": "^3.5.25",
-    "vue-router": "^4.6.3",
-    "vue-i18n": "^11.2.2"
+    "vue-i18n": "^11.2.2",
+    "vue-router": "^4.6.3"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.2.1",
@@ -36,6 +36,8 @@
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.8.1",
     "eslint": "^9.39.1",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-vue": "~10.5.1",
     "jiti": "^2.6.1",
     "jsdom": "^27.2.0",

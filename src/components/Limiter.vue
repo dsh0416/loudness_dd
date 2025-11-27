@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+
 import { useTabsStore } from '@/stores/tabs'
 
 const tabsStore = useTabsStore()
@@ -83,8 +84,8 @@ function formatRatio(x: number): string {
       <button
         class="limiter-toggle"
         :class="{ active: isEnabled }"
-        @click="toggleLimiter"
         :title="isEnabled ? t('limiter.tooltip.disable') : t('limiter.tooltip.enable')"
+        @click="toggleLimiter"
       >
         <span class="toggle-track">
           <span class="toggle-thumb"></span>
@@ -124,8 +125,8 @@ function formatRatio(x: number): string {
       <button
         class="advanced-toggle"
         :class="{ expanded: showAdvanced }"
-        @click="showAdvanced = !showAdvanced"
         :disabled="!isEnabled"
+        @click="showAdvanced = !showAdvanced"
       >
         <span class="advanced-icon">{{ showAdvanced ? '▼' : '▶' }}</span>
         <span>{{ t('limiter.advanced') }}</span>

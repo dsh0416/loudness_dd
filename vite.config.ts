@@ -1,14 +1,15 @@
-import { fileURLToPath, URL } from 'node:url'
 import { resolve } from 'node:path'
+import { fileURLToPath, URL } from 'node:url'
 
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import vueDevTools from 'vite-plugin-vue-devtools'
 import { crx } from '@crxjs/vite-plugin'
-import manifest from './manifest.config'
-import zipPack from 'vite-plugin-zip-pack'
-import i18nLocalesPlugin from './plugins/i18n-locales'
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
+import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vite'
+import vueDevTools from 'vite-plugin-vue-devtools'
+import zipPack from 'vite-plugin-zip-pack'
+
+import manifest from './manifest.config'
+import i18nLocalesPlugin from './plugins/i18n-locales'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -31,7 +32,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
   build: {

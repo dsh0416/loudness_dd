@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+
 import { useTabsStore, type CapturedTab, hasEnoughSamples } from '@/stores/tabs'
+
 import LufsMeter from './LufsMeter.vue'
 
 const tabsStore = useTabsStore()
@@ -73,7 +75,15 @@ const hasSolo = computed(() => tabsStore.hasSolo)
     </div>
 
     <TransitionGroup name="tab-item" tag="div" class="tabs-container">
-      <div v-for="tab in tabs" :key="tab.tabId" class="tab-item" :class="{ 'is-solo': soloTabId === tab.tabId, 'is-muted': hasSolo && soloTabId !== tab.tabId }">
+      <div
+        v-for="tab in tabs"
+        :key="tab.tabId"
+        class="tab-item"
+        :class="{
+          'is-solo': soloTabId === tab.tabId,
+          'is-muted': hasSolo && soloTabId !== tab.tabId,
+        }"
+      >
         <div class="tab-header">
           <img
             v-if="tab.url"
@@ -87,22 +97,24 @@ const hasSolo = computed(() => tabsStore.hasSolo)
             <button
               class="action-btn solo-btn"
               :class="{ active: soloTabId === tab.tabId }"
+              :title="
+                soloTabId === tab.tabId ? t('tabs.actions.solo.on') : t('tabs.actions.solo.off')
+              "
               @click="handleSolo(tab)"
-              :title="soloTabId === tab.tabId ? t('tabs.actions.solo.on') : t('tabs.actions.solo.off')"
             >
               S
             </button>
             <button
               class="action-btn reset-btn"
-              @click="handleResetLufs(tab)"
               :title="t('tabs.actions.reset')"
+              @click="handleResetLufs(tab)"
             >
               ↺
             </button>
             <button
               class="action-btn remove-btn"
-              @click="handleRemove(tab)"
               :title="t('tabs.actions.stop')"
+              @click="handleRemove(tab)"
             >
               ✕
             </button>
@@ -159,7 +171,10 @@ const hasSolo = computed(() => tabsStore.hasSolo)
           </div>
         </div>
 
-        <div class="tab-status" :class="{ capturing: tab.isCapturing, 'collecting': !hasEnoughSamples(tab.currentLufs) }">
+        <div
+          class="tab-status"
+          :class="{ capturing: tab.isCapturing, collecting: !hasEnoughSamples(tab.currentLufs) }"
+        >
           <span class="status-dot"></span>
           <span v-if="tab.isCapturing && !hasEnoughSamples(tab.currentLufs)" class="status-text">
             {{ t('tabs.status.collecting') }}
@@ -505,4 +520,3 @@ const hasSolo = computed(() => tabsStore.hasSolo)
   transition: transform 0.3s ease;
 }
 </style>
-

@@ -515,7 +515,9 @@ async function autoBalanceOnce(targetLufs: number): Promise<void> {
 
     // Skip tabs without enough samples for reliable LUFS measurement
     if (!hasEnoughSamples(tabState)) {
-      console.log(`Skipping auto-balance for tab ${tabId}: not enough samples (${tabState.currentLufs.blockCount} blocks)`)
+      console.log(
+        `Skipping auto-balance for tab ${tabId}: not enough samples (${tabState.currentLufs.blockCount} blocks)`,
+      )
       continue
     }
 
@@ -756,7 +758,7 @@ const NOTIFICATION_MESSAGE_TYPES = new Set([
 chrome.runtime.onMessage.addListener(
   (
     message: IncomingMessage,
-    sender: chrome.runtime.MessageSender,
+    _sender: chrome.runtime.MessageSender,
     sendResponse: (response?: unknown) => void,
   ) => {
     // Ignore messages targeted for offscreen document
@@ -946,19 +948,17 @@ chrome.tabs.onRemoved.addListener(async (tabId: number) => {
 })
 
 // Handle tab updates - update title/url
-chrome.tabs.onUpdated.addListener(
-  (tabId: number, changeInfo: { title?: string; url?: string }) => {
-    const tabState = capturedTabs.get(tabId)
-    if (tabState) {
-      if (changeInfo.title) {
-        tabState.title = changeInfo.title
-      }
-      if (changeInfo.url) {
-        tabState.url = changeInfo.url
-      }
+chrome.tabs.onUpdated.addListener((tabId: number, changeInfo: { title?: string; url?: string }) => {
+  const tabState = capturedTabs.get(tabId)
+  if (tabState) {
+    if (changeInfo.title) {
+      tabState.title = changeInfo.title
     }
-  },
-)
+    if (changeInfo.url) {
+      tabState.url = changeInfo.url
+    }
+  }
+})
 
 // Initialize on install
 chrome.runtime.onInstalled.addListener(async () => {

@@ -1,6 +1,7 @@
-import type { Plugin } from 'vite'
 import { readdirSync, readFileSync, mkdirSync, writeFileSync } from 'node:fs'
 import { resolve, basename, dirname } from 'node:path'
+
+import type { Plugin } from 'vite'
 
 type LocaleObject = Record<string, unknown>
 
@@ -89,5 +90,3 @@ export default function i18nLocalesPlugin(): Plugin {
     },
   }
 }
-
-

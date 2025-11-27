@@ -73,7 +73,9 @@ const momentaryColor = computed(() => getMeterColor(safeMomentary.value))
 const integratedColor = computed(() => getMeterColor(safeIntegrated.value))
 
 // Progress toward enough samples
-const sampleProgress = computed(() => Math.min(100, (safeBlockCount.value / MIN_BLOCKS_REQUIRED) * 100))
+const sampleProgress = computed(() =>
+  Math.min(100, (safeBlockCount.value / MIN_BLOCKS_REQUIRED) * 100),
+)
 
 const { t } = useI18n()
 </script>
@@ -92,8 +94,8 @@ const { t } = useI18n()
     </div>
 
     <!-- Momentary meter (fast-moving bar) -->
-    <div class="meter-row" v-if="!compact">
-      <span class="meter-label" v-if="showLabels">M</span>
+    <div v-if="!compact" class="meter-row">
+      <span v-if="showLabels" class="meter-label">M</span>
       <div class="meter-track">
         <div
           class="meter-bar momentary"
@@ -108,8 +110,8 @@ const { t } = useI18n()
     </div>
 
     <!-- Short-term meter -->
-    <div class="meter-row" v-if="!compact">
-      <span class="meter-label" v-if="showLabels">S</span>
+    <div v-if="!compact" class="meter-row">
+      <span v-if="showLabels" class="meter-label">S</span>
       <div class="meter-track">
         <div
           class="meter-bar short-term"
@@ -125,7 +127,7 @@ const { t } = useI18n()
 
     <!-- Integrated meter (main display) -->
     <div class="meter-row integrated" :class="{ 'not-ready': !hasEnoughSamples }">
-      <span class="meter-label" v-if="showLabels">I</span>
+      <span v-if="showLabels" class="meter-label">I</span>
       <div class="meter-track">
         <div
           class="meter-bar"
@@ -147,7 +149,7 @@ const { t } = useI18n()
     </div>
 
     <!-- Scale markers -->
-    <div class="scale" v-if="showLabels && !compact">
+    <div v-if="showLabels && !compact" class="scale">
       <span>-60</span>
       <span>-40</span>
       <span>-20</span>

@@ -1,29 +1,89 @@
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+import { FlatCompat } from '@eslint/eslintrc'
+import {
+  configureVueProject,
+  defineConfigWithVueTs,
+  vueTsConfigs,
+} from '@vue/eslint-config-typescript'
 import { globalIgnores } from 'eslint/config'
-import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
+import prettier from 'eslint-config-prettier'
 import pluginVue from 'eslint-plugin-vue'
-import pluginVitest from '@vitest/eslint-plugin'
-import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
 
-// To allow more languages other than `ts` in `.vue` files, uncomment the following lines:
-// import { configureVueProject } from '@vue/eslint-config-typescript'
-// configureVueProject({ scriptLangs: ['ts', 'tsx'] })
-// More info at https://github.com/vuejs/eslint-config-typescript/#advanced-setup
+const eslintrc = new FlatCompat()
 
-export default defineConfigWithVueTs(
-  {
-    name: 'app/files-to-lint',
-    files: ['**/*.{ts,mts,tsx,vue}'],
-  },
+configureVueProject({
+  scriptLangs: ['ts', 'js', 'jsx', 'tsx'],
+})
 
-  globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']),
+const currentDirectory = path.dirname(fileURLToPath(import.meta.url))
 
-  pluginVue.configs['flat/essential'],
+const config = defineConfigWithVueTs(
+  prettier,
+  ...pluginVue.configs['flat/recommended'],
+  ...eslintrc.extends('plugin:import/recommended'),
+  ...eslintrc.extends('plugin:prettier/recommended'),
   vueTsConfigs.recommended,
-  
-  {
-    ...pluginVitest.configs.recommended,
-    files: ['src/**/__tests__/*'],
-  },
-
-  skipFormatting,
 )
+
+export default [
+  globalIgnores(['.pnpm-store', '.vite', 'node_modules', 'dist', 'release']),
+  {
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: currentDirectory,
+      },
+    },
+  },
+  ...config,
+  {
+    settings: {
+      'import/resolver': {
+        typescript: {
+          alwaysTryTypes: true,
+        },
+        node: {
+          map: {
+            '@': './src',
+          },
+          extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        },
+      },
+    },
+    rules: {
+      'vue/multi-word-component-names': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          args: 'all',
+          argsIgnorePattern: '^_',
+          caughtErrors: 'all',
+          caughtErrorsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+        },
+      ],
+      'import/order': [
+        'error',
+        {
+          groups: ['builtin', 'external', ['internal', 'parent', 'sibling', 'index'], 'unknown'],
+          pathGroups: [
+            {
+              pattern: '@/**',
+              group: 'external',
+              position: 'after',
+            },
+          ],
+          pathGroupsExcludedImportTypes: ['builtin'],
+          'newlines-between': 'always',
+          alphabetize: {
+            order: 'asc',
+            caseInsensitive: true,
+          },
+        },
+      ],
+    },
+  },
+]
