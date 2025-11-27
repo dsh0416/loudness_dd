@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useTabsStore, type CapturedTab, hasEnoughSamples } from '@/stores/tabs'
 import LufsMeter from './LufsMeter.vue'
 
 const tabsStore = useTabsStore()
+const { t } = useI18n()
 
 // Format gain value for display
 function formatGain(gainDb: number): string {
@@ -66,8 +68,8 @@ const hasSolo = computed(() => tabsStore.hasSolo)
   <div class="tab-list">
     <div v-if="tabs.length === 0" class="empty-state">
       <div class="empty-icon">🔇</div>
-      <p>No tabs being monitored</p>
-      <p class="empty-hint">Click "Register Tab" to start monitoring audio</p>
+      <p>{{ t('tabs.empty.title') }}</p>
+      <p class="empty-hint">{{ t('tabs.empty.hint') }}</p>
     </div>
 
     <TransitionGroup name="tab-item" tag="div" class="tabs-container">
@@ -86,21 +88,21 @@ const hasSolo = computed(() => tabsStore.hasSolo)
               class="action-btn solo-btn"
               :class="{ active: soloTabId === tab.tabId }"
               @click="handleSolo(tab)"
-              :title="soloTabId === tab.tabId ? 'Un-solo (restore all)' : 'Solo (mute others)'"
+              :title="soloTabId === tab.tabId ? t('tabs.actions.solo.on') : t('tabs.actions.solo.off')"
             >
               S
             </button>
             <button
               class="action-btn reset-btn"
               @click="handleResetLufs(tab)"
-              title="Reset LUFS measurement"
+              :title="t('tabs.actions.reset')"
             >
               ↺
             </button>
             <button
               class="action-btn remove-btn"
               @click="handleRemove(tab)"
-              title="Stop monitoring"
+              :title="t('tabs.actions.stop')"
             >
               ✕
             </button>
@@ -137,7 +139,7 @@ const hasSolo = computed(() => tabsStore.hasSolo)
           </div>
           <div class="max-gain-control">
             <label class="max-gain-label">
-              <span>Max boost:</span>
+              <span>{{ t('tabs.maxBoost') }}</span>
               <select
                 class="max-gain-select"
                 :value="tab.maxGainDb"
@@ -160,12 +162,12 @@ const hasSolo = computed(() => tabsStore.hasSolo)
         <div class="tab-status" :class="{ capturing: tab.isCapturing, 'collecting': !hasEnoughSamples(tab.currentLufs) }">
           <span class="status-dot"></span>
           <span v-if="tab.isCapturing && !hasEnoughSamples(tab.currentLufs)" class="status-text">
-            Collecting samples...
+            {{ t('tabs.status.collecting') }}
           </span>
           <span v-else-if="tab.isCapturing" class="status-text">
-            Ready for auto-balance
+            {{ t('tabs.status.ready') }}
           </span>
-          <span v-else class="status-text">Paused</span>
+          <span v-else class="status-text">{{ t('tabs.status.paused') }}</span>
         </div>
       </div>
     </TransitionGroup>

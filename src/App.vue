@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useTabsStore } from '@/stores/tabs'
 import TabList from '@/components/TabList.vue'
 import AutoBalance from '@/components/AutoBalance.vue'
@@ -7,6 +8,11 @@ import AutoBalance from '@/components/AutoBalance.vue'
 const version = __APP_VERSION__
 
 const tabsStore = useTabsStore()
+const { t, locale } = useI18n({ useScope: 'global' })
+const languages = [
+  { code: 'en', name: 'English' },
+  { code: 'zh-CN', name: '简体中文' },
+]
 
 const isLoading = computed(() => tabsStore.isLoading)
 const error = computed(() => tabsStore.error)
@@ -25,6 +31,17 @@ function handleClearError(): void {
 // Start polling on mount
 onMounted(() => {
   tabsStore.startPolling()
+
+  // get current locale
+  const currentLocale = locale.value
+  if (currentLocale) {
+    const language = languages.find(l => l.code === currentLocale)
+    if (language) {
+      locale.value = language.code
+    } else {
+      locale.value = 'en'
+    }
+  }
 })
 
 // Stop polling on unmount
@@ -39,9 +56,14 @@ onUnmounted(() => {
     <header class="app-header">
       <div class="logo">
         <span class="logo-icon">📊</span>
-        <h1>Loudness DD</h1>
+        <h1>{{ t('popup.title') }}</h1>
       </div>
-      <span class="version"> v{{ version }}</span>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <select v-model="locale" class="lang-select">
+          <option v-for="l in languages" :key="l.code" :value="l.code">{{ l.name }}</option>
+        </select>
+        <span class="version"> v{{ version }}</span>
+      </div>
     </header>
 
     <!-- Error Banner -->
@@ -58,7 +80,7 @@ onUnmounted(() => {
       <!-- Register Tab Button -->
       <button class="register-btn" :disabled="isLoading" @click="handleRegisterTab">
         <span class="btn-icon">{{ isLoading ? '⏳' : '➕' }}</span>
-        <span class="btn-text">{{ isLoading ? 'Registering...' : 'Register Current Tab' }}</span>
+        <span class="btn-text">{{ isLoading ? t('popup.register.registering') : t('popup.register.register') }}</span>
       </button>
 
       <!-- Auto Balance Controls -->
@@ -69,16 +91,16 @@ onUnmounted(() => {
 
       <!-- Tab List -->
       <section class="tabs-section">
-        <h2 v-if="hasCaptures">Monitored Tabs</h2>
+        <h2 v-if="hasCaptures">{{ t('popup.tabs.title') }}</h2>
         <TabList />
       </section>
     </main>
 
     <!-- Footer -->
     <footer class="app-footer">
-      <span> Loudness DD </span>
+      <span> {{ t('footer.brand') }} </span>
       <span class="separator">•</span>
-      <a href="https://github.com/dsh0416" target="_blank" rel="noopener noreferrer">@dsh0416</a>
+      <a href="https://github.com/dsh0416" target="_blank" rel="noopener noreferrer">{{ t('footer.author') }}</a>
     </footer>
   </div>
 </template>
@@ -116,6 +138,15 @@ body,
 </style>
 
 <style scoped>
+.lang-select {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: #a0aec0;
+  font-size: 11px;
+  padding: 4px 6px;
+}
+
 .app {
   display: flex;
   flex-direction: column;

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useTabsStore } from '@/stores/tabs'
 
 const tabsStore = useTabsStore()
+const { t } = useI18n()
 
 const targetLufs = computed(() => tabsStore.targetLufs)
 const isAutoBalancing = computed(() => tabsStore.isAutoBalancing)
@@ -37,10 +39,10 @@ async function handleToggleAutoBalance(): Promise<void> {
 
 // Preset LUFS targets
 const presets = [
-  { label: 'Broadcast', value: -24 },
-  { label: 'Streaming', value: -14 },
-  { label: 'Podcast', value: -16 },
-  { label: 'Loud', value: -9 },
+  { key: 'broadcast', value: -24 },
+  { key: 'streaming', value: -14 },
+  { key: 'podcast', value: -16 },
+  { key: 'loud', value: -9 },
 ]
 
 async function applyPreset(value: number): Promise<void> {
@@ -51,9 +53,9 @@ async function applyPreset(value: number): Promise<void> {
 <template>
   <div class="auto-balance">
     <div class="section-header">
-      <h3>Volume Balance</h3>
+      <h3>{{ t('autobalance.title') }}</h3>
       <div class="average-lufs" v-if="hasCaptures">
-        <span class="label">Avg:</span>
+        <span class="label">{{ t('autobalance.avg') }}</span>
         <span class="value">{{ formatLufs(averageLufs) }} LUFS</span>
       </div>
     </div>
@@ -61,7 +63,7 @@ async function applyPreset(value: number): Promise<void> {
     <!-- Target LUFS Control -->
     <div class="target-control">
       <label class="control-label">
-        <span>Target LUFS</span>
+        <span>{{ t('autobalance.target') }}</span>
         <span class="target-value">{{ targetLufs }} LUFS</span>
       </label>
 
@@ -88,7 +90,7 @@ async function applyPreset(value: number): Promise<void> {
           :class="{ active: targetLufs === preset.value }"
           @click="applyPreset(preset.value)"
         >
-          {{ preset.label }}
+          {{ t(`autobalance.presets.${preset.key}`) }}
           <span class="preset-value">{{ preset.value }}</span>
         </button>
       </div>
@@ -102,7 +104,7 @@ async function applyPreset(value: number): Promise<void> {
         @click="handleAutoBalanceNow"
       >
         <span class="btn-icon">⚖️</span>
-        <span class="btn-text">Balance Now</span>
+        <span class="btn-text">{{ t('autobalance.balanceNow') }}</span>
       </button>
 
       <button
@@ -112,14 +114,14 @@ async function applyPreset(value: number): Promise<void> {
         @click="handleToggleAutoBalance"
       >
         <span class="btn-icon">{{ isAutoBalancing ? '⏸️' : '🔄' }}</span>
-        <span class="btn-text">{{ isAutoBalancing ? 'Stop Auto' : 'Auto Balance' }}</span>
+        <span class="btn-text">{{ isAutoBalancing ? t('autobalance.auto.stop') : t('autobalance.auto.start') }}</span>
       </button>
     </div>
 
     <!-- Auto-balance indicator -->
     <div v-if="isAutoBalancing" class="auto-indicator">
       <div class="indicator-dot"></div>
-      <span>Running in background: {{ targetLufs }} LUFS</span>
+      <span>{{ t('autobalance.running') }}: {{ targetLufs }} LUFS</span>
     </div>
   </div>
 </template>

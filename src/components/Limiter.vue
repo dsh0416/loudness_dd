@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useTabsStore } from '@/stores/tabs'
 
 const tabsStore = useTabsStore()
 defineOptions({ name: 'LimiterControl' })
+const { t } = useI18n()
 
 const isEnabled = computed(() => tabsStore.isLimiterEnabled)
 const threshold = computed(() => tabsStore.limiterThreshold)
@@ -65,30 +67,30 @@ function formatKnee(db: number): string {
     <div class="limiter-header">
       <div class="limiter-title">
         <span class="limiter-icon">🛡️</span>
-        <span>Output Limiter</span>
+        <span>{{ t('limiter.title') }}</span>
       </div>
       <button
         class="limiter-toggle"
         :class="{ active: isEnabled }"
         @click="toggleLimiter"
-        :title="isEnabled ? 'Disable limiter' : 'Enable limiter'"
+        :title="isEnabled ? t('limiter.tooltip.disable') : t('limiter.tooltip.enable')"
       >
         <span class="toggle-track">
           <span class="toggle-thumb"></span>
         </span>
-        <span class="toggle-label">{{ isEnabled ? 'ON' : 'OFF' }}</span>
+        <span class="toggle-label">{{ isEnabled ? t('limiter.on') : t('limiter.off') }}</span>
       </button>
     </div>
 
     <div class="limiter-description">
-      Prevents clipping when multiple tabs play loud content simultaneously
+      {{ t('limiter.description') }}
     </div>
 
     <div class="limiter-controls" :class="{ disabled: !isEnabled }">
       <!-- Ceiling (Threshold) -->
       <div class="control-row">
         <label class="control-label">
-          <span>Ceiling</span>
+          <span>{{ t('limiter.ceiling') }}</span>
           <span class="control-value">{{ formatThreshold(threshold) }}</span>
         </label>
         <div class="slider-container">
@@ -115,7 +117,7 @@ function formatKnee(db: number): string {
         :disabled="!isEnabled"
       >
         <span class="advanced-icon">{{ showAdvanced ? '▼' : '▶' }}</span>
-        <span>Advanced Settings</span>
+        <span>{{ t('limiter.advanced') }}</span>
       </button>
 
       <!-- Advanced Controls -->
@@ -124,7 +126,7 @@ function formatKnee(db: number): string {
           <!-- Attack -->
           <div class="control-row">
             <label class="control-label">
-              <span>Attack</span>
+              <span>{{ t('limiter.attack') }}</span>
               <span class="control-value attack-value">{{ formatAttack(attack) }}</span>
             </label>
             <div class="slider-container">
@@ -142,16 +144,16 @@ function formatKnee(db: number): string {
               <span class="slider-label">50</span>
             </div>
             <div class="param-hint">
-              <span v-if="attack <= 1">Fast - catches transients</span>
-              <span v-else-if="attack <= 10">Balanced</span>
-              <span v-else>Slow - more natural</span>
+              <span v-if="attack <= 1">{{ t('limiter.hints.attack.fast') }}</span>
+              <span v-else-if="attack <= 10">{{ t('limiter.hints.attack.balanced') }}</span>
+              <span v-else>{{ t('limiter.hints.attack.slow') }}</span>
             </div>
           </div>
 
           <!-- Release -->
           <div class="control-row">
             <label class="control-label">
-              <span>Release</span>
+              <span>{{ t('limiter.release') }}</span>
               <span class="control-value release-value">{{ formatRelease(release) }}</span>
             </label>
             <div class="slider-container">
@@ -169,16 +171,16 @@ function formatKnee(db: number): string {
               <span class="slider-label">500</span>
             </div>
             <div class="param-hint">
-              <span v-if="release <= 50">Fast - punchy</span>
-              <span v-else-if="release <= 150">Balanced</span>
-              <span v-else>Slow - smooth</span>
+              <span v-if="release <= 50">{{ t('limiter.hints.release.fast') }}</span>
+              <span v-else-if="release <= 150">{{ t('limiter.hints.release.balanced') }}</span>
+              <span v-else>{{ t('limiter.hints.release.slow') }}</span>
             </div>
           </div>
 
           <!-- Knee -->
           <div class="control-row">
             <label class="control-label">
-              <span>Knee</span>
+              <span>{{ t('limiter.knee') }}</span>
               <span class="control-value knee-value">{{ formatKnee(knee) }}</span>
             </label>
             <div class="slider-container">
@@ -196,9 +198,9 @@ function formatKnee(db: number): string {
               <span class="slider-label">40</span>
             </div>
             <div class="param-hint">
-              <span v-if="knee <= 1">Hard knee - precise limiting</span>
-              <span v-else-if="knee <= 10">Soft knee - smoother</span>
-              <span v-else>Very soft - gentle compression</span>
+              <span v-if="knee <= 1">{{ t('limiter.hints.knee.hard') }}</span>
+              <span v-else-if="knee <= 10">{{ t('limiter.hints.knee.soft') }}</span>
+              <span v-else>{{ t('limiter.hints.knee.verySoft') }}</span>
             </div>
           </div>
         </div>
@@ -207,7 +209,7 @@ function formatKnee(db: number): string {
 
     <div v-if="isEnabled" class="limiter-status">
       <span class="status-indicator active"></span>
-      <span>Limiter active on all monitored tabs</span>
+      <span>{{ t('limiter.active') }}</span>
     </div>
   </div>
 </template>

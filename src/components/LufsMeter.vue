@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 // Minimum blocks required for reliable LUFS-I measurement
 const MIN_BLOCKS_REQUIRED = 10
@@ -73,6 +74,8 @@ const integratedColor = computed(() => getMeterColor(safeIntegrated.value))
 
 // Progress toward enough samples
 const sampleProgress = computed(() => Math.min(100, (safeBlockCount.value / MIN_BLOCKS_REQUIRED) * 100))
+
+const { t } = useI18n()
 </script>
 
 <template>
@@ -81,7 +84,7 @@ const sampleProgress = computed(() => Math.min(100, (safeBlockCount.value / MIN_
     <div v-if="!hasEnoughSamples && !compact" class="collecting-samples">
       <div class="collecting-icon">⏳</div>
       <div class="collecting-info">
-        <span class="collecting-text">Collecting samples...</span>
+        <span class="collecting-text">{{ t('lufs.collecting') }}</span>
         <div class="progress-bar">
           <div class="progress-fill" :style="{ width: `${sampleProgress}%` }"></div>
         </div>

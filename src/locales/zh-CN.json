@@ -1,0 +1,91 @@
+{
+  "popup": {
+    "title": "Loudness DD",
+    "register": {
+      "register": "注册当前标签页",
+      "registering": "正在注册…"
+    },
+    "tabs": {
+      "title": "已监控的标签页"
+    }
+  },
+  "footer": {
+    "brand": "Loudness DD",
+    "author": "github.com/dsh0416"
+  },
+  "autobalance": {
+    "title": "音量平衡",
+    "avg": "平均",
+    "target": "目标 LUFS",
+    "presets": {
+      "broadcast": "广播",
+      "streaming": "流媒体",
+      "podcast": "播客",
+      "loud": "响亮"
+    },
+    "balanceNow": "立即平衡",
+    "auto": {
+      "start": "自动平衡",
+      "stop": "停止自动"
+    },
+    "running": "后台自动平衡中"
+  },
+  "limiter": {
+    "title": "输出压限",
+    "tooltip": {
+      "enable": "启用压限",
+      "disable": "禁用压限"
+    },
+    "on": "开",
+    "off": "关",
+    "description": "当多个标签播放较响内容时防止削波",
+    "ceiling": "上限",
+    "advanced": "高级设置",
+    "attack": "起动",
+    "release": "释放",
+    "knee": "拐点",
+    "hints": {
+      "attack": {
+        "fast": "快速 - 捕捉瞬态",
+        "balanced": "平衡",
+        "slow": "较慢 - 更自然"
+      },
+      "release": {
+        "fast": "快速 - 有力度",
+        "balanced": "平衡",
+        "slow": "较慢 - 更顺滑"
+      },
+      "knee": {
+        "hard": "硬拐点 - 精确限幅",
+        "soft": "软拐点 - 更平滑",
+        "verySoft": "非常软 - 轻柔压缩"
+      }
+    },
+    "active": "压限已在所有监控标签页启用"
+  },
+  "tabs": {
+    "empty": {
+      "title": "没有正在监控的标签页",
+      "hint": "点击「注册标签页」以开始监控音频"
+    },
+    "actions": {
+      "solo": {
+        "on": "取消独奏（恢复全部）",
+        "off": "独奏（静音其他）"
+      },
+      "reset": "重置 LUFS 测量",
+      "stop": "停止监控"
+    },
+    "maxBoost": "最大增益：",
+    "status": {
+      "collecting": "正在采样…",
+      "ready": "可自动平衡",
+      "paused": "已暂停"
+    }
+  },
+  "lufs": {
+    "collecting": "正在采样…"
+  }
+}
+
+

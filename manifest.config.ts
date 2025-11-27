@@ -5,6 +5,7 @@ export default defineManifest({
   name: 'Loudness DD',
   description: 'LUFS-based tab volume balancer for Chrome',
   version: process.env.npm_package_version ?? '0.0.0',
+  default_locale: 'en',
   icons: {
     '16': 'logo.png',
     '32': 'logo.png',

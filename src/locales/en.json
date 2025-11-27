@@ -1,0 +1,91 @@
+{
+  "popup": {
+    "title": "Loudness DD",
+    "register": {
+      "register": "Register Current Tab",
+      "registering": "Registering..."
+    },
+    "tabs": {
+      "title": "Monitored Tabs"
+    }
+  },
+  "footer": {
+    "brand": "Loudness DD",
+    "author": "github.com/dsh0416"
+  },
+  "autobalance": {
+    "title": "Volume Balance",
+    "avg": "Avg:",
+    "target": "Target LUFS",
+    "presets": {
+      "broadcast": "Broadcast",
+      "streaming": "Streaming",
+      "podcast": "Podcast",
+      "loud": "Loud"
+    },
+    "balanceNow": "Balance Now",
+    "auto": {
+      "start": "Auto Balance",
+      "stop": "Stop Auto"
+    },
+    "running": "Running in background"
+  },
+  "limiter": {
+    "title": "Output Limiter",
+    "tooltip": {
+      "enable": "Enable limiter",
+      "disable": "Disable limiter"
+    },
+    "on": "ON",
+    "off": "OFF",
+    "description": "Prevents clipping when multiple tabs play loud content simultaneously",
+    "ceiling": "Ceiling",
+    "advanced": "Advanced Settings",
+    "attack": "Attack",
+    "release": "Release",
+    "knee": "Knee",
+    "hints": {
+      "attack": {
+        "fast": "Fast - catches transients",
+        "balanced": "Balanced",
+        "slow": "Slow - more natural"
+      },
+      "release": {
+        "fast": "Fast - punchy",
+        "balanced": "Balanced",
+        "slow": "Slow - smooth"
+      },
+      "knee": {
+        "hard": "Hard knee - precise limiting",
+        "soft": "Soft knee - smoother",
+        "verySoft": "Very soft - gentle compression"
+      }
+    },
+    "active": "Limiter active on all monitored tabs"
+  },
+  "tabs": {
+    "empty": {
+      "title": "No tabs being monitored",
+      "hint": "Click \"Register Tab\" to start monitoring audio"
+    },
+    "actions": {
+      "solo": {
+        "on": "Un-solo (restore all)",
+        "off": "Solo (mute others)"
+      },
+      "reset": "Reset LUFS measurement",
+      "stop": "Stop monitoring"
+    },
+    "maxBoost": "Max boost:",
+    "status": {
+      "collecting": "Collecting samples...",
+      "ready": "Ready for auto-balance",
+      "paused": "Paused"
+    }
+  },
+  "lufs": {
+    "collecting": "Collecting samples..."
+  }
+}
+
+
