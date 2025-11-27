@@ -132,7 +132,7 @@ body {
 html,
 body,
 #app {
-  width: 500px;
+  width: 800px;
   min-height: 400px;
   max-height: 600px;
 }

@@ -205,8 +205,8 @@ const hasSolo = computed(() => tabsStore.hasSolo)
 }
 
 .tabs-container {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
@@ -218,6 +218,7 @@ const hasSolo = computed(() => tabsStore.hasSolo)
   box-shadow:
     0 4px 12px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  min-width: 0;
 }
 
 .tab-header {
