@@ -1,11 +1,41 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 import { mount } from '@vue/test-utils'
 import App from '../App.vue'
 
+vi.mock('@/stores/tabs', () => {
+  return {
+    useTabsStore: () => ({
+      // state/computed used by App.vue and TabList.vue
+      isLoading: false,
+      error: null,
+      hasCaptures: false,
+      tabs: [],
+      targetLufs: -14,
+      soloTabId: null,
+      hasSolo: false,
+      // actions used by App.vue
+      registerCurrentTab: vi.fn(async () => {}),
+      clearError: vi.fn(() => {}),
+      startPolling: vi.fn(() => {}),
+      stopPolling: vi.fn(() => {}),
+      // actions used by TabList.vue
+      setGain: vi.fn(async () => {}),
+      setMaxGain: vi.fn(async () => {}),
+      unregisterTab: vi.fn(async () => {}),
+      resetLufs: vi.fn(async () => {}),
+      toggleSolo: vi.fn(async () => {}),
+    }),
+  }
+})
+
 describe('App', () => {
-  it('mounts renders properly', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('mounts and renders the header title', () => {
     const wrapper = mount(App)
-    expect(wrapper.text()).toContain('You did it!')
+    expect(wrapper.text()).toContain('Loudness DD')
   })
 })
