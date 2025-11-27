@@ -3,7 +3,7 @@
  * Handles Web Audio API operations that aren't available in service workers
  */
 
-import { LufsCalculator, dbToGain } from '@/audio/lufs'
+import { dbToGain } from '@/audio/lufs'
 import lufsProcessorUrl from '@/worklets/lufs-processor?worker&url'
 
 // Global limiter settings (applies to all tabs)
@@ -28,14 +28,15 @@ let globalLimiterSettings: LimiterSettings = {
 interface TabAudioProcessor {
   audioContext: AudioContext
   sourceNode: MediaStreamAudioSourceNode
-  analyserNode: AnalyserNode
   gainNode: GainNode
   limiterNode: DynamicsCompressorNode
   workletNode: AudioWorkletNode
-  lufsCalculator: LufsCalculator
   stream: MediaStream
-  updateInterval: number | null
   trackEndedHandler: () => void
+  lastMomentary: number
+  lastShortTerm: number
+  lastIntegrated: number
+  blockCount: number
 }
 
 // Map of tabId to audio processor
@@ -172,9 +173,7 @@ async function cleanupProcessor(tabId: number): Promise<void> {
   if (!processor) return
 
   // Clear update interval
-  if (processor.updateInterval) {
-    clearInterval(processor.updateInterval)
-  }
+  // (No periodic interval used; readings forwarded on worklet messages)
 
   // Remove track ended listener
   const audioTracks = processor.stream.getAudioTracks()
@@ -257,28 +256,17 @@ async function startCapture(
     await audioContext.resume() // Ensure audio context is running
 
     const sourceNode = audioContext.createMediaStreamSource(stream)
-    const analyserNode = audioContext.createAnalyser()
     const gainNode = audioContext.createGain()
 
     // Create limiter (DynamicsCompressorNode with limiter settings)
     const limiterNode = audioContext.createDynamicsCompressor()
     applyLimiterSettings(limiterNode, globalLimiterSettings)
 
-    // Configure analyser for LUFS calculation
-    analyserNode.fftSize = 2048
-    analyserNode.smoothingTimeConstant = 0
-
     // Connect the audio graph for playback
     // Source -> Gain -> Limiter -> Destination (so user hears the adjusted and limited audio)
     sourceNode.connect(gainNode)
     gainNode.connect(limiterNode)
     limiterNode.connect(audioContext.destination)
-
-    // Create LUFS calculator
-    const lufsCalculator = new LufsCalculator({
-      sampleRate: audioContext.sampleRate,
-      channels: 2, // Assume stereo
-    })
 
     // Load the AudioWorklet module for LUFS processing via module URL
     await audioContext.audioWorklet.addModule(lufsProcessorUrl)
@@ -290,10 +278,17 @@ async function startCapture(
       outputChannelCount: [2],
     })
 
-    // Handle messages from the worklet (audio samples for LUFS calculation)
+    // Handle messages from the worklet (aggregated LUFS readings)
     workletNode.port.onmessage = (event) => {
-      if (event.data.type === 'samples') {
-        lufsCalculator.processInterleaved(event.data.samples)
+      if (event.data && event.data.type === 'lufs') {
+        const proc = processors.get(tabId)
+        if (!proc) return
+        proc.lastMomentary = event.data.momentary ?? -Infinity
+        proc.lastShortTerm = event.data.shortTerm ?? -Infinity
+        proc.lastIntegrated = event.data.integrated ?? -Infinity
+        proc.blockCount = event.data.blockCount ?? proc.blockCount
+        // Forward to background immediately
+        sendLufsUpdate(tabId)
       }
     }
 
@@ -326,32 +321,18 @@ async function startCapture(
       }
     })
 
-    // Start update interval for sending LUFS readings
-    const updateInterval = window.setInterval(() => {
-      // Check if stream is still active
-      const track = stream.getAudioTracks()[0]
-      if (!track || track.readyState === 'ended') {
-        // Stream has ended, clean up
-        cleanupProcessor(tabId).then(() => {
-          notifyStreamEnded(tabId, 'Stream no longer active')
-        })
-        return
-      }
-
-      sendLufsUpdate(tabId, lufsCalculator)
-    }, 100) // 10 updates per second
-
     processors.set(tabId, {
       audioContext,
       sourceNode,
-      analyserNode,
       gainNode,
       limiterNode,
       workletNode,
-      lufsCalculator,
       stream,
-      updateInterval,
       trackEndedHandler,
+      lastMomentary: -Infinity,
+      lastShortTerm: -Infinity,
+      lastIntegrated: -Infinity,
+      blockCount: 0,
     })
 
     // Notify background that capture started
@@ -423,14 +404,25 @@ function setGain(tabId: number, gainDb: number): boolean {
 /**
  * Send LUFS update to background
  */
-function sendLufsUpdate(tabId: number, calculator: LufsCalculator): void {
+function sendLufsUpdate(tabId: number): void {
+  const processor = processors.get(tabId)
+  if (!processor) {
+    chrome.runtime.sendMessage({
+      type: 'LUFS_UPDATE',
+      tabId,
+      momentary: -Infinity,
+      shortTerm: -Infinity,
+      integrated: -Infinity,
+    })
+    return
+  }
   chrome.runtime.sendMessage({
     type: 'LUFS_UPDATE',
     tabId,
-    momentary: calculator.getMomentaryLoudness(),
-    shortTerm: calculator.getShortTermLoudness(),
-    integrated: calculator.getIntegratedLoudness(),
-    blockCount: calculator.getBlockCount(),
+    momentary: processor.lastMomentary,
+    shortTerm: processor.lastShortTerm,
+    integrated: processor.lastIntegrated,
+    blockCount: processor.blockCount,
   })
 }
 
@@ -450,7 +442,7 @@ function getLufs(tabId: number): void {
     return
   }
 
-  sendLufsUpdate(tabId, processor.lufsCalculator)
+  sendLufsUpdate(tabId)
 }
 
 /**
@@ -460,7 +452,15 @@ function resetLufs(tabId: number): void {
   const processor = processors.get(tabId)
   if (!processor) return
 
-  processor.lufsCalculator.reset()
+  try {
+    processor.workletNode.port.postMessage({ type: 'reset' })
+  } catch {
+    // Ignore postMessage errors
+  }
+  processor.lastMomentary = -Infinity
+  processor.lastShortTerm = -Infinity
+  processor.lastIntegrated = -Infinity
+  processor.blockCount = 0
 
   chrome.runtime.sendMessage({
     type: 'LUFS_RESET',
