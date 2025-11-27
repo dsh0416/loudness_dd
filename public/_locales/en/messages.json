@@ -66,13 +66,16 @@
     "message": "OFF"
   },
   "limiter_description": {
-    "message": "Prevents clipping when multiple tabs play loud content simultaneously"
+    "message": "Prevents clipping across tabs. Threshold sets the level where limiting begins."
   },
   "limiter_ceiling": {
-    "message": "Ceiling"
+    "message": "Threshold"
   },
   "limiter_advanced": {
     "message": "Advanced Settings"
+  },
+  "limiter_ratio": {
+    "message": "Ratio"
   },
   "limiter_attack": {
     "message": "Attack"

@@ -66,13 +66,16 @@
     "message": "关"
   },
   "limiter_description": {
-    "message": "当多个标签播放较响内容时防止削波"
+    "message": "当多个标签播放较响内容时防止削波。阈值决定开始限幅的电平。"
   },
   "limiter_ceiling": {
-    "message": "上限"
+    "message": "阈值"
   },
   "limiter_advanced": {
     "message": "高级设置"
+  },
+  "limiter_ratio": {
+    "message": "比率"
   },
   "limiter_attack": {
     "message": "起动"

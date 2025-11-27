@@ -2,13 +2,14 @@
 import { onMounted, onUnmounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTabsStore } from '@/stores/tabs'
+import Limiter from '@/components/Limiter.vue'
 import TabList from '@/components/TabList.vue'
 import AutoBalance from '@/components/AutoBalance.vue'
 
 const version = __APP_VERSION__
 
 const tabsStore = useTabsStore()
-const { t, locale } = useI18n({ useScope: 'global' })
+const { t, locale } = useI18n()
 const languages = [
   { code: 'en', name: 'English' },
   { code: 'zh-CN', name: '简体中文' },
@@ -87,7 +88,7 @@ onUnmounted(() => {
       <AutoBalance v-if="hasCaptures" />
 
       <!-- Limiter Controls -->
-      <!-- <Limiter v-if="hasCaptures" /> -->
+      <Limiter v-if="hasCaptures" />
 
       <!-- Tab List -->
       <section class="tabs-section">
@@ -131,7 +132,7 @@ body {
 html,
 body,
 #app {
-  width: 380px;
+  width: 500px;
   min-height: 400px;
   max-height: 600px;
 }

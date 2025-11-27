@@ -259,6 +259,25 @@ export const useTabsStore = defineStore('tabs', () => {
     }
   }
 
+  async function setLimiterRatio(ratio: number): Promise<boolean> {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: 'SET_LIMITER_SETTINGS',
+        settings: { ratio },
+      })
+
+      if (response.settings) {
+        limiterSettings.value = response.settings
+      }
+
+      return response.success
+    } catch (err) {
+      console.error('Failed to set limiter ratio:', err)
+      error.value = err instanceof Error ? err.message : 'Failed to set limiter ratio'
+      return false
+    }
+  }
+
   async function registerCurrentTab(): Promise<boolean> {
     isLoading.value = true
     error.value = null
@@ -544,6 +563,7 @@ export const useTabsStore = defineStore('tabs', () => {
   const limiterAttack = computed(() => limiterSettings.value.attackMs)
   const limiterRelease = computed(() => limiterSettings.value.releaseMs)
   const limiterKnee = computed(() => limiterSettings.value.kneeDb)
+  const limiterRatio = computed(() => limiterSettings.value.ratio)
 
   // Computed for solo
   const hasSolo = computed(() => soloTabId.value !== null)
@@ -568,6 +588,7 @@ export const useTabsStore = defineStore('tabs', () => {
     limiterAttack,
     limiterRelease,
     limiterKnee,
+    limiterRatio,
     hasSolo,
 
     // Actions
@@ -589,6 +610,7 @@ export const useTabsStore = defineStore('tabs', () => {
     setLimiterAttack,
     setLimiterRelease,
     setLimiterKnee,
+    setLimiterRatio,
     resetLufs,
     startPolling,
     stopPolling,

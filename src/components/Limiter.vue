@@ -12,6 +12,7 @@ const threshold = computed(() => tabsStore.limiterThreshold)
 const attack = computed(() => tabsStore.limiterAttack)
 const release = computed(() => tabsStore.limiterRelease)
 const knee = computed(() => tabsStore.limiterKnee)
+const ratio = computed(() => tabsStore.limiterRatio)
 
 // Toggle for showing advanced settings
 const showAdvanced = ref(false)
@@ -44,6 +45,12 @@ async function handleKneeChange(event: Event): Promise<void> {
   await tabsStore.setLimiterKnee(value)
 }
 
+async function handleRatioChange(event: Event): Promise<void> {
+  const target = event.target as HTMLInputElement
+  const value = parseFloat(target.value)
+  await tabsStore.setLimiterRatio(value)
+}
+
 // Format functions
 function formatThreshold(db: number): string {
   return `${db.toFixed(1)} dB`
@@ -59,6 +66,10 @@ function formatRelease(ms: number): string {
 
 function formatKnee(db: number): string {
   return `${db.toFixed(0)} dB`
+}
+
+function formatRatio(x: number): string {
+  return `${x.toFixed(0)}:1`
 }
 </script>
 
@@ -123,6 +134,27 @@ function formatKnee(db: number): string {
       <!-- Advanced Controls -->
       <Transition name="slide">
         <div v-if="showAdvanced" class="advanced-controls">
+          <!-- Ratio -->
+          <div class="control-row">
+            <label class="control-label">
+              <span>{{ t('limiter.ratio') }}</span>
+              <span class="control-value ratio-value">{{ formatRatio(ratio) }}</span>
+            </label>
+            <div class="slider-container">
+              <span class="slider-label">1</span>
+              <input
+                type="range"
+                class="param-slider ratio-slider"
+                min="1"
+                max="60"
+                step="1"
+                :value="ratio"
+                :disabled="!isEnabled"
+                @input="handleRatioChange"
+              />
+              <span class="slider-label">60</span>
+            </div>
+          </div>
           <!-- Attack -->
           <div class="control-row">
             <label class="control-label">
@@ -399,6 +431,14 @@ function formatKnee(db: number): string {
 
 .knee-slider {
   background: linear-gradient(to right, #9f7aea 0%, #a0aec0 100%);
+}
+
+.ratio-slider {
+  background: linear-gradient(to right, #38b2ac 0%, #a0aec0 100%);
+}
+
+.ratio-value {
+  color: #38b2ac;
 }
 
 .param-slider::-webkit-slider-thumb {
