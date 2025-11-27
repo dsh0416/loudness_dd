@@ -8,6 +8,10 @@
   A Chrome extension that automatically balances audio levels across browser tabs using professional broadcast-standard LUFS measurement.
 </p>
 
+<p align="center">
+  For autonomous coding agents and contributors, see <a href="./AGENT.md"><strong>AGENT.md</strong></a>.
+</p>
+
 ---
 
 ## ✨ Features
