@@ -7,16 +7,16 @@ export default defineManifest({
   version: process.env.npm_package_version ?? '0.0.0',
   default_locale: 'en',
   icons: {
-    '16': 'logo.png',
-    '32': 'logo.png',
-    '48': 'logo.png',
-    '128': 'logo.png',
+    '16': 'logo@16w.png',
+    '32': 'logo@32w.png',
+    '48': 'logo@48w.png',
+    '128': 'logo@128w.png',
   },
   action: {
     default_popup: 'index.html',
     default_icon: {
-      '16': 'logo.png',
-      '32': 'logo.png',
+      '16': 'logo@16w.png',
+      '32': 'logo@32w.png',
     },
   },
   background: {
