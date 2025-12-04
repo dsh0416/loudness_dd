@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, computed } from 'vue'
+import { onMounted, onUnmounted, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AutoBalance from '@/components/AutoBalance.vue'
 import Limiter from '@/components/Limiter.vue'
 import TabList from '@/components/TabList.vue'
+import { useSettingsStore } from '@/stores/settings'
 import { useTabsStore } from '@/stores/tabs'
 
 const version = __APP_VERSION__
 
 const tabsStore = useTabsStore()
 const { t, locale } = useI18n()
+const settings = useSettingsStore()
 const languages = [
   { code: 'en', name: 'English' },
   { code: 'zh_CN', name: '简体中文' },
@@ -44,7 +46,21 @@ onMounted(() => {
       locale.value = 'en'
     }
   }
+
+  // sync i18n with persisted settings on mount
+  if (settings.locale && settings.locale !== locale.value) {
+    locale.value = settings.locale
+  }
 })
+
+// Persist locale changes via Pinia store
+watch(
+  locale,
+  (val) => {
+    settings.locale = String(val)
+  },
+  { flush: 'post' },
+)
 
 // Stop polling on unmount
 onUnmounted(() => {
