@@ -22,17 +22,14 @@ const isLoading = computed(() => tabsStore.isLoading)
 const error = computed(() => tabsStore.error)
 const hasCaptures = computed(() => tabsStore.hasCaptures)
 
-// Register current tab for capture
 async function handleRegisterTab(): Promise<void> {
   await tabsStore.registerCurrentTab()
 }
 
-// Clear error message
 function handleClearError(): void {
   tabsStore.clearError()
 }
 
-// Start polling on mount
 onMounted(() => {
   tabsStore.startPolling()
 
@@ -47,13 +44,11 @@ onMounted(() => {
     }
   }
 
-  // sync i18n with persisted settings on mount
   if (settings.locale && settings.locale !== locale.value) {
     locale.value = settings.locale
   }
 })
 
-// Persist locale changes via Pinia store
 watch(
   locale,
   (val) => {
@@ -62,7 +57,6 @@ watch(
   { flush: 'post' },
 )
 
-// Stop polling on unmount
 onUnmounted(() => {
   tabsStore.stopPolling()
 })

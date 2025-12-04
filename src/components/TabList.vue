@@ -9,7 +9,6 @@ import LufsMeter from './LufsMeter.vue'
 const tabsStore = useTabsStore()
 const { t } = useI18n()
 
-// Track collapsed tabs to show integrated LUFS only
 const collapsedIds = ref<Set<number>>(new Set())
 
 function isCollapsed(tabId: number): boolean {
@@ -26,13 +25,11 @@ function toggleCollapsed(tabId: number): void {
   collapsedIds.value = set
 }
 
-// Format gain value for display
 function formatGain(gainDb: number): string {
   const prefix = gainDb >= 0 ? '+' : ''
   return `${prefix}${gainDb.toFixed(1)} dB`
 }
 
-// Get favicon URL for a tab
 function getFaviconUrl(url: string): string {
   try {
     const urlObj = new URL(url)
@@ -42,37 +39,31 @@ function getFaviconUrl(url: string): string {
   }
 }
 
-// Truncate title for display
 function truncateTitle(title: string, maxLength = 30): string {
   if (title.length <= maxLength) return title
   return title.substring(0, maxLength - 3) + '...'
 }
 
-// Handle gain slider change
 async function handleGainChange(tab: CapturedTab, event: Event): Promise<void> {
   const target = event.target as HTMLInputElement
   const gainDb = parseFloat(target.value)
   await tabsStore.setGain(tab.tabId, gainDb)
 }
 
-// Handle max gain change
 async function handleMaxGainChange(tab: CapturedTab, event: Event): Promise<void> {
   const target = event.target as HTMLInputElement
   const maxGainDb = parseFloat(target.value)
   await tabsStore.setMaxGain(tab.tabId, maxGainDb)
 }
 
-// Handle remove button click
 async function handleRemove(tab: CapturedTab): Promise<void> {
   await tabsStore.unregisterTab(tab.tabId)
 }
 
-// Handle reset LUFS button click
 async function handleResetLufs(tab: CapturedTab): Promise<void> {
   await tabsStore.resetLufs(tab.tabId)
 }
 
-// Handle solo button click
 async function handleSolo(tab: CapturedTab): Promise<void> {
   await tabsStore.toggleSolo(tab.tabId)
 }

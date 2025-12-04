@@ -18,6 +18,6 @@ app.use(i18n)
 
 // Hydrate i18n locale from persisted store before mount
 const settings = useSettingsStore(pinia)
-i18n.global.locale.value = settings.locale
+i18n.global.locale.value = settings.locale as 'en' | 'zh_CN'
 
 app.mount('#app')

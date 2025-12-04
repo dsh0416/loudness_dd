@@ -15,7 +15,6 @@ const release = computed(() => tabsStore.limiterRelease)
 const knee = computed(() => tabsStore.limiterKnee)
 const ratio = computed(() => tabsStore.limiterRatio)
 
-// Toggle for showing advanced settings
 const showAdvanced = ref(false)
 
 async function toggleLimiter(): Promise<void> {
@@ -52,7 +51,6 @@ async function handleRatioChange(event: Event): Promise<void> {
   await tabsStore.setLimiterRatio(value)
 }
 
-// Format functions
 function formatThreshold(db: number): string {
   return `${db.toFixed(1)} dB`
 }

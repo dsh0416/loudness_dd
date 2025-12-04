@@ -44,7 +44,6 @@ export interface LimiterSettings {
 }
 
 export const useTabsStore = defineStore('tabs', () => {
-  // State
   const tabs = ref<CapturedTab[]>([])
   const soloTabId = ref<number | null>(null)
   const autoBalanceSettings = ref<AutoBalanceSettings>({
@@ -62,14 +61,10 @@ export const useTabsStore = defineStore('tabs', () => {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
-  // Polling interval for tab updates (LUFS values change frequently)
   let pollInterval: number | null = null
-
-  // Storage change listener for cross-tab sync
   let storageListener: ((changes: { [key: string]: chrome.storage.StorageChange }) => void) | null =
     null
 
-  // Computed
   const capturedTabIds = computed(() => tabs.value.map((t) => t.tabId))
 
   const hasCaptures = computed(() => tabs.value.length > 0)
@@ -85,7 +80,6 @@ export const useTabsStore = defineStore('tabs', () => {
     return sum / validTabs.length
   })
 
-  // Actions
   async function fetchTabs(): Promise<void> {
     try {
       const response = await chrome.runtime.sendMessage({ type: 'GET_TABS' })
@@ -498,49 +492,35 @@ export const useTabsStore = defineStore('tabs', () => {
     }
   }
 
-  /**
-   * Handle storage changes for cross-tab synchronization
-   */
   function handleStorageChange(changes: { [key: string]: chrome.storage.StorageChange }): void {
-    // Sync auto-balance settings changes from other tabs/background
     if (changes.autoBalanceSettings?.newValue) {
       autoBalanceSettings.value = changes.autoBalanceSettings.newValue as AutoBalanceSettings
     }
-
-    // Sync limiter settings changes
     if (changes.limiterSettings?.newValue) {
       limiterSettings.value = changes.limiterSettings.newValue as LimiterSettings
     }
-
-    // Sync captured tabs changes
     if (changes.capturedTabs?.newValue) {
       tabs.value = changes.capturedTabs.newValue as CapturedTab[]
     }
   }
 
-  // Start polling for tab updates and listening for storage changes
   function startPolling(): void {
     if (pollInterval) return
 
-    // Initial fetch
     fetchTabs()
     fetchLimiterSettings()
     fetchAutoBalanceSettings()
 
-    // Set up storage change listener for cross-tab sync
     if (!storageListener) {
       storageListener = handleStorageChange
       chrome.storage.onChanged.addListener(storageListener)
     }
 
-    // Poll every 100ms for smooth meter updates (LUFS values)
-    // Settings are synced via storage.onChanged, so we only poll for dynamic data
     pollInterval = window.setInterval(() => {
       fetchTabs()
     }, 100)
   }
 
-  // Stop polling and remove listeners
   function stopPolling(): void {
     if (pollInterval) {
       clearInterval(pollInterval)
@@ -557,15 +537,12 @@ export const useTabsStore = defineStore('tabs', () => {
     error.value = null
   }
 
-  // Computed for limiter
   const isLimiterEnabled = computed(() => limiterSettings.value.enabled)
   const limiterThreshold = computed(() => limiterSettings.value.thresholdDb)
   const limiterAttack = computed(() => limiterSettings.value.attackMs)
   const limiterRelease = computed(() => limiterSettings.value.releaseMs)
   const limiterKnee = computed(() => limiterSettings.value.kneeDb)
   const limiterRatio = computed(() => limiterSettings.value.ratio)
-
-  // Computed for solo
   const hasSolo = computed(() => soloTabId.value !== null)
 
   return {

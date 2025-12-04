@@ -2,7 +2,6 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-// Minimum blocks required for reliable LUFS-I measurement
 const MIN_BLOCKS_REQUIRED = 10
 
 interface Props {
@@ -25,56 +24,42 @@ const props = withDefaults(defineProps<Props>(), {
   compact: false,
 })
 
-// Safe getters for potentially null values
-const safeMomentary = computed(() => props.momentary ?? -Infinity)
-const safeShortTerm = computed(() => props.shortTerm ?? -Infinity)
-const safeIntegrated = computed(() => props.integrated ?? -Infinity)
-const safeBlockCount = computed(() => props.blockCount ?? 0)
-const safeTargetLufs = computed(() => props.targetLufs ?? -14)
+const hasEnoughSamples = computed(() => (props.blockCount ?? 0) >= MIN_BLOCKS_REQUIRED)
 
-// Computed: whether we have enough samples
-const hasEnoughSamples = computed(() => safeBlockCount.value >= MIN_BLOCKS_REQUIRED)
-
-// LUFS range for display (-60 to 0)
 const MIN_LUFS = -60
 const MAX_LUFS = 0
 
-// Convert LUFS to percentage for bar display
 function lufsToPercent(lufs: number): number {
   if (!isFinite(lufs) || lufs <= MIN_LUFS) return 0
   if (lufs >= MAX_LUFS) return 100
   return ((lufs - MIN_LUFS) / (MAX_LUFS - MIN_LUFS)) * 100
 }
 
-// Format LUFS value for display
 function formatLufs(lufs: number): string {
   if (!isFinite(lufs) || lufs <= MIN_LUFS) return '-∞'
   return lufs.toFixed(1)
 }
 
-// Get color based on LUFS level relative to target
 function getMeterColor(lufs: number): string {
   if (!isFinite(lufs)) return 'var(--color-meter-silent)'
-
-  const diff = lufs - safeTargetLufs.value
-
-  if (diff > 3) return 'var(--color-meter-loud)' // Too loud (red)
-  if (diff > 0) return 'var(--color-meter-warm)' // Slightly loud (orange)
-  if (diff > -6) return 'var(--color-meter-good)' // Good range (green)
-  return 'var(--color-meter-quiet)' // Too quiet (blue)
+  const target = props.targetLufs ?? -14
+  const diff = lufs - target
+  if (diff > 3) return 'var(--color-meter-loud)'
+  if (diff > 0) return 'var(--color-meter-warm)'
+  if (diff > -6) return 'var(--color-meter-good)'
+  return 'var(--color-meter-quiet)'
 }
 
-const momentaryPercent = computed(() => lufsToPercent(safeMomentary.value))
-const shortTermPercent = computed(() => lufsToPercent(safeShortTerm.value))
-const integratedPercent = computed(() => lufsToPercent(safeIntegrated.value))
-const targetPercent = computed(() => lufsToPercent(safeTargetLufs.value))
+const momentaryPercent = computed(() => lufsToPercent(props.momentary ?? -Infinity))
+const shortTermPercent = computed(() => lufsToPercent(props.shortTerm ?? -Infinity))
+const integratedPercent = computed(() => lufsToPercent(props.integrated ?? -Infinity))
+const targetPercent = computed(() => lufsToPercent(props.targetLufs ?? -14))
 
-const momentaryColor = computed(() => getMeterColor(safeMomentary.value))
-const integratedColor = computed(() => getMeterColor(safeIntegrated.value))
+const momentaryColor = computed(() => getMeterColor(props.momentary ?? -Infinity))
+const integratedColor = computed(() => getMeterColor(props.integrated ?? -Infinity))
 
-// Progress toward enough samples
 const sampleProgress = computed(() =>
-  Math.min(100, (safeBlockCount.value / MIN_BLOCKS_REQUIRED) * 100),
+  Math.min(100, ((props.blockCount ?? 0) / MIN_BLOCKS_REQUIRED) * 100),
 )
 
 const { t } = useI18n()
@@ -82,7 +67,6 @@ const { t } = useI18n()
 
 <template>
   <div class="lufs-meter" :class="{ compact }">
-    <!-- Sample collection indicator -->
     <div v-if="!hasEnoughSamples && !compact" class="collecting-samples">
       <div class="collecting-icon">⏳</div>
       <div class="collecting-info">
@@ -93,7 +77,6 @@ const { t } = useI18n()
       </div>
     </div>
 
-    <!-- Momentary meter (fast-moving bar) -->
     <div v-if="!compact" class="meter-row">
       <span v-if="showLabels" class="meter-label">M</span>
       <div class="meter-track">
@@ -106,10 +89,9 @@ const { t } = useI18n()
         />
         <div class="target-line" :style="{ left: `${targetPercent}%` }" />
       </div>
-      <span class="meter-value">{{ formatLufs(safeMomentary) }}</span>
+      <span class="meter-value">{{ formatLufs(momentary ?? -Infinity) }}</span>
     </div>
 
-    <!-- Short-term meter -->
     <div v-if="!compact" class="meter-row">
       <span v-if="showLabels" class="meter-label">S</span>
       <div class="meter-track">
@@ -122,10 +104,9 @@ const { t } = useI18n()
         />
         <div class="target-line" :style="{ left: `${targetPercent}%` }" />
       </div>
-      <span class="meter-value">{{ formatLufs(safeShortTerm) }}</span>
+      <span class="meter-value">{{ formatLufs(shortTerm ?? -Infinity) }}</span>
     </div>
 
-    <!-- Integrated meter (main display) -->
     <div class="meter-row integrated" :class="{ 'not-ready': !hasEnoughSamples }">
       <span v-if="showLabels" class="meter-label">I</span>
       <div class="meter-track">
@@ -139,16 +120,14 @@ const { t } = useI18n()
         <div class="target-line" :style="{ left: `${targetPercent}%` }" />
       </div>
       <span class="meter-value integrated-value" :class="{ dimmed: !hasEnoughSamples }">
-        {{ formatLufs(safeIntegrated) }}
+        {{ formatLufs(integrated ?? -Infinity) }}
       </span>
     </div>
 
-    <!-- Compact mode sample indicator -->
     <div v-if="!hasEnoughSamples && compact" class="compact-collecting">
       <span class="collecting-dot"></span>
     </div>
 
-    <!-- Scale markers -->
     <div v-if="showLabels && !compact" class="scale">
       <span>-60</span>
       <span>-40</span>

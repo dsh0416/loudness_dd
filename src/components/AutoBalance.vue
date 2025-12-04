@@ -12,13 +12,11 @@ const isAutoBalancing = computed(() => tabsStore.isAutoBalancing)
 const hasCaptures = computed(() => tabsStore.hasCaptures)
 const averageLufs = computed(() => tabsStore.averageLufs)
 
-// Format LUFS value for display
 function formatLufs(lufs: number): string {
   if (!isFinite(lufs)) return '-∞'
   return lufs.toFixed(1)
 }
 
-// Handle target LUFS input change
 async function handleTargetChange(event: Event): Promise<void> {
   const target = event.target as HTMLInputElement
   const value = parseFloat(target.value)
@@ -27,12 +25,10 @@ async function handleTargetChange(event: Event): Promise<void> {
   }
 }
 
-// Handle toggle continuous auto-balance
 async function handleToggleAutoBalance(): Promise<void> {
   await tabsStore.toggleAutoBalance()
 }
 
-// Preset LUFS targets
 const presets = [
   { key: 'broadcast', value: -24 },
   { key: 'streaming', value: -14 },
