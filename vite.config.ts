@@ -20,8 +20,8 @@ export default defineConfig({
       include: resolve(__dirname, 'src/locales/**'),
       strictMessage: false,
     }),
-    crx({ manifest }),
     i18nLocalesPlugin(),
+    crx({ manifest }),
     zipPack({ outDir: 'release', outFileName: 'release.zip' }),
   ],
   define: {

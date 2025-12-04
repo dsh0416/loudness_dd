@@ -15,6 +15,9 @@ coverage
 *.local
 release
 
+# Generated locales (created by i18n-locales plugin)
+public/_locales
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

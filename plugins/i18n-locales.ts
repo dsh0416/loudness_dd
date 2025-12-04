@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, mkdirSync, writeFileSync } from 'node:fs'
+import { readdirSync, readFileSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { resolve, basename, dirname } from 'node:path'
 
 import type { Plugin } from 'vite'
@@ -43,6 +43,8 @@ export default function i18nLocalesPlugin(): Plugin {
 
   function writeToPublic(): void {
     try {
+      // Clean up the entire _locales directory first to remove stale files
+      rmSync(publicLocalesDir, { recursive: true, force: true })
       const bundles = readLocales(localesDir)
       for (const { lang, messages } of bundles) {
         const chromeMessages = toChromeMessages(messages)
