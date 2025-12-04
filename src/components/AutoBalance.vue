@@ -9,7 +9,6 @@ const { t } = useI18n()
 
 const targetLufs = computed(() => tabsStore.targetLufs)
 const isAutoBalancing = computed(() => tabsStore.isAutoBalancing)
-const isLoading = computed(() => tabsStore.isLoading)
 const hasCaptures = computed(() => tabsStore.hasCaptures)
 const averageLufs = computed(() => tabsStore.averageLufs)
 
@@ -26,11 +25,6 @@ async function handleTargetChange(event: Event): Promise<void> {
   if (!isNaN(value)) {
     await tabsStore.setTargetLufs(value)
   }
-}
-
-// Handle one-shot auto-balance button click
-async function handleAutoBalanceNow(): Promise<void> {
-  await tabsStore.autoBalanceNow()
 }
 
 // Handle toggle continuous auto-balance
@@ -99,15 +93,6 @@ async function applyPreset(value: number): Promise<void> {
 
     <!-- Balance Actions -->
     <div class="balance-actions">
-      <button
-        class="balance-btn one-shot"
-        :disabled="!hasCaptures || isLoading"
-        @click="handleAutoBalanceNow"
-      >
-        <span class="btn-icon">⚖️</span>
-        <span class="btn-text">{{ t('autobalance.balanceNow') }}</span>
-      </button>
-
       <button
         class="balance-btn continuous"
         :class="{ active: isAutoBalancing }"
@@ -293,18 +278,6 @@ async function applyPreset(value: number): Promise<void> {
   align-items: center;
   justify-content: center;
   gap: 6px;
-}
-
-.balance-btn.one-shot {
-  background: linear-gradient(145deg, #4299e1, #3182ce);
-  color: white;
-  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
-}
-
-.balance-btn.one-shot:hover:not(:disabled) {
-  background: linear-gradient(145deg, #63b3ed, #4299e1);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(66, 153, 225, 0.4);
 }
 
 .balance-btn.continuous {
