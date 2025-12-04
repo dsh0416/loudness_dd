@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useTabsStore, type CapturedTab, hasEnoughSamples } from '@/stores/tabs'
@@ -8,6 +8,23 @@ import LufsMeter from './LufsMeter.vue'
 
 const tabsStore = useTabsStore()
 const { t } = useI18n()
+
+// Track collapsed tabs to show integrated LUFS only
+const collapsedIds = ref<Set<number>>(new Set())
+
+function isCollapsed(tabId: number): boolean {
+  return collapsedIds.value.has(tabId)
+}
+
+function toggleCollapsed(tabId: number): void {
+  const set = new Set(collapsedIds.value)
+  if (set.has(tabId)) {
+    set.delete(tabId)
+  } else {
+    set.add(tabId)
+  }
+  collapsedIds.value = set
+}
 
 // Format gain value for display
 function formatGain(gainDb: number): string {
@@ -82,9 +99,10 @@ const hasSolo = computed(() => tabsStore.hasSolo)
         :class="{
           'is-solo': soloTabId === tab.tabId,
           'is-muted': hasSolo && soloTabId !== tab.tabId,
+          'is-collapsed': isCollapsed(tab.tabId),
         }"
       >
-        <div class="tab-header">
+        <div class="tab-header" @click.stop="toggleCollapsed(tab.tabId)">
           <img
             v-if="tab.url"
             :src="getFaviconUrl(tab.url)"
@@ -100,44 +118,49 @@ const hasSolo = computed(() => tabsStore.hasSolo)
               :title="
                 soloTabId === tab.tabId ? t('tabs.actions.solo.on') : t('tabs.actions.solo.off')
               "
-              @click="handleSolo(tab)"
+              @click.stop="handleSolo(tab)"
             >
               S
             </button>
             <button
               class="action-btn reset-btn"
               :title="t('tabs.actions.reset')"
-              @click="handleResetLufs(tab)"
+              @click.stop="handleResetLufs(tab)"
             >
               ↺
             </button>
             <button
               class="action-btn remove-btn"
               :title="t('tabs.actions.stop')"
-              @click="handleRemove(tab)"
+              @click.stop="handleRemove(tab)"
             >
               ✕
             </button>
           </div>
         </div>
 
-        <LufsMeter
-          :momentary="tab.currentLufs.momentary"
-          :short-term="tab.currentLufs.shortTerm"
-          :integrated="tab.currentLufs.integrated"
-          :block-count="tab.currentLufs.blockCount"
-          :target-lufs="targetLufs"
-          :show-labels="true"
-          :compact="false"
-        />
+        <div
+          class="meter-wrapper"
+          @click="isCollapsed(tab.tabId) && toggleCollapsed(tab.tabId)"
+        >
+          <LufsMeter
+            :momentary="tab.currentLufs.momentary"
+            :short-term="tab.currentLufs.shortTerm"
+            :integrated="tab.currentLufs.integrated"
+            :block-count="tab.currentLufs.blockCount"
+            :target-lufs="targetLufs"
+            :show-labels="!isCollapsed(tab.tabId)"
+            :compact="isCollapsed(tab.tabId)"
+          />
+        </div>
 
-        <div class="volume-control">
+        <div class="volume-control" :class="{ 'is-collapsed': isCollapsed(tab.tabId) }">
           <label class="volume-label">
             <span class="volume-icon">🔊</span>
             <span class="gain-value">{{ formatGain(tab.gainDb) }}</span>
           </label>
           <div class="slider-container">
-            <span class="slider-min">-20</span>
+            <span v-if="!isCollapsed(tab.tabId)" class="slider-min">-20</span>
             <input
               type="range"
               class="volume-slider"
@@ -147,9 +170,9 @@ const hasSolo = computed(() => tabsStore.hasSolo)
               :value="tab.gainDb"
               @input="handleGainChange(tab, $event)"
             />
-            <span class="slider-max">{{ formatGain(tab.maxGainDb) }}</span>
+            <span v-if="!isCollapsed(tab.tabId)" class="slider-max">{{ formatGain(tab.maxGainDb) }}</span>
           </div>
-          <div class="max-gain-control">
+          <div v-if="!isCollapsed(tab.tabId)" class="max-gain-control">
             <label class="max-gain-label">
               <span>{{ t('tabs.maxBoost') }}</span>
               <select
@@ -172,6 +195,7 @@ const hasSolo = computed(() => tabsStore.hasSolo)
         </div>
 
         <div
+          v-if="!isCollapsed(tab.tabId)"
           class="tab-status"
           :class="{ capturing: tab.isCapturing, collecting: !hasEnoughSamples(tab.currentLufs) }"
         >
@@ -241,6 +265,8 @@ const hasSolo = computed(() => tabsStore.hasSolo)
   align-items: center;
   gap: 8px;
   margin-bottom: 10px;
+  cursor: pointer;
+  user-select: none;
 }
 
 .tab-favicon {
@@ -257,6 +283,10 @@ const hasSolo = computed(() => tabsStore.hasSolo)
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.tab-item.is-collapsed .meter-wrapper {
+  cursor: pointer;
 }
 
 .tab-actions {
@@ -412,6 +442,19 @@ const hasSolo = computed(() => tabsStore.hasSolo)
 .max-gain-select:focus {
   border-color: #4299e1;
   box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.2);
+}
+
+.volume-control.is-collapsed {
+  margin-top: 6px;
+  padding-top: 6px;
+}
+
+.volume-control.is-collapsed .volume-label {
+  margin-bottom: 4px;
+}
+
+.volume-control.is-collapsed .volume-icon {
+  display: none;
 }
 
 .max-gain-select option {
