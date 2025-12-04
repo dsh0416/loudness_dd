@@ -139,74 +139,76 @@ const hasSolo = computed(() => tabsStore.hasSolo)
           </div>
         </div>
 
-        <div
-          class="meter-wrapper"
-          @click="isCollapsed(tab.tabId) && toggleCollapsed(tab.tabId)"
-        >
-          <LufsMeter
-            :momentary="tab.currentLufs.momentary"
-            :short-term="tab.currentLufs.shortTerm"
-            :integrated="tab.currentLufs.integrated"
-            :block-count="tab.currentLufs.blockCount"
-            :target-lufs="targetLufs"
-            :show-labels="!isCollapsed(tab.tabId)"
-            :compact="isCollapsed(tab.tabId)"
-          />
-        </div>
-
-        <div class="volume-control" :class="{ 'is-collapsed': isCollapsed(tab.tabId) }">
-          <label class="volume-label">
-            <span class="volume-icon">🔊</span>
-            <span class="gain-value">{{ formatGain(tab.gainDb) }}</span>
-          </label>
-          <div class="slider-container">
-            <span v-if="!isCollapsed(tab.tabId)" class="slider-min">-20</span>
-            <input
-              type="range"
-              class="volume-slider"
-              min="-20"
-              :max="tab.maxGainDb"
-              step="0.5"
-              :value="tab.gainDb"
-              @input="handleGainChange(tab, $event)"
+        <div class="collapsible-content">
+          <div
+            class="meter-wrapper"
+            @click="isCollapsed(tab.tabId) && toggleCollapsed(tab.tabId)"
+          >
+            <LufsMeter
+              :momentary="tab.currentLufs.momentary"
+              :short-term="tab.currentLufs.shortTerm"
+              :integrated="tab.currentLufs.integrated"
+              :block-count="tab.currentLufs.blockCount"
+              :target-lufs="targetLufs"
+              :show-labels="!isCollapsed(tab.tabId)"
+              :compact="isCollapsed(tab.tabId)"
             />
-            <span v-if="!isCollapsed(tab.tabId)" class="slider-max">{{ formatGain(tab.maxGainDb) }}</span>
           </div>
-          <div v-if="!isCollapsed(tab.tabId)" class="max-gain-control">
-            <label class="max-gain-label">
-              <span>{{ t('tabs.maxBoost') }}</span>
-              <select
-                class="max-gain-select"
-                :value="tab.maxGainDb"
-                @change="handleMaxGainChange(tab, $event)"
-              >
-                <option :value="-6">-6 dB</option>
-                <option :value="0">0 dB (default)</option>
-                <option :value="3">+3 dB</option>
-                <option :value="6">+6 dB</option>
-                <option :value="9">+9 dB</option>
-                <option :value="12">+12 dB</option>
-                <option :value="15">+15 dB</option>
-                <option :value="18">+18 dB</option>
-                <option :value="20">+20 dB</option>
-              </select>
-            </label>
-          </div>
-        </div>
 
-        <div
-          v-if="!isCollapsed(tab.tabId)"
-          class="tab-status"
-          :class="{ capturing: tab.isCapturing, collecting: !hasEnoughSamples(tab.currentLufs) }"
-        >
-          <span class="status-dot"></span>
-          <span v-if="tab.isCapturing && !hasEnoughSamples(tab.currentLufs)" class="status-text">
-            {{ t('tabs.status.collecting') }}
-          </span>
-          <span v-else-if="tab.isCapturing" class="status-text">
-            {{ t('tabs.status.ready') }}
-          </span>
-          <span v-else class="status-text">{{ t('tabs.status.paused') }}</span>
+          <div class="volume-control" :class="{ 'is-collapsed': isCollapsed(tab.tabId) }">
+            <label class="volume-label">
+              <span class="volume-icon">🔊</span>
+              <span class="gain-value">{{ formatGain(tab.gainDb) }}</span>
+            </label>
+            <div class="slider-container">
+              <span v-if="!isCollapsed(tab.tabId)" class="slider-min">-20</span>
+              <input
+                type="range"
+                class="volume-slider"
+                min="-20"
+                :max="tab.maxGainDb"
+                step="0.5"
+                :value="tab.gainDb"
+                @input="handleGainChange(tab, $event)"
+              />
+              <span v-if="!isCollapsed(tab.tabId)" class="slider-max">{{ formatGain(tab.maxGainDb) }}</span>
+            </div>
+            <div v-if="!isCollapsed(tab.tabId)" class="max-gain-control">
+              <label class="max-gain-label">
+                <span>{{ t('tabs.maxBoost') }}</span>
+                <select
+                  class="max-gain-select"
+                  :value="tab.maxGainDb"
+                  @change="handleMaxGainChange(tab, $event)"
+                >
+                  <option :value="-6">-6 dB</option>
+                  <option :value="0">0 dB (default)</option>
+                  <option :value="3">+3 dB</option>
+                  <option :value="6">+6 dB</option>
+                  <option :value="9">+9 dB</option>
+                  <option :value="12">+12 dB</option>
+                  <option :value="15">+15 dB</option>
+                  <option :value="18">+18 dB</option>
+                  <option :value="20">+20 dB</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div
+            v-if="!isCollapsed(tab.tabId)"
+            class="tab-status"
+            :class="{ capturing: tab.isCapturing, collecting: !hasEnoughSamples(tab.currentLufs) }"
+          >
+            <span class="status-dot"></span>
+            <span v-if="tab.isCapturing && !hasEnoughSamples(tab.currentLufs)" class="status-text">
+              {{ t('tabs.status.collecting') }}
+            </span>
+            <span v-else-if="tab.isCapturing" class="status-text">
+              {{ t('tabs.status.ready') }}
+            </span>
+            <span v-else class="status-text">{{ t('tabs.status.paused') }}</span>
+          </div>
         </div>
       </div>
     </TransitionGroup>
@@ -258,6 +260,16 @@ const hasSolo = computed(() => tabsStore.hasSolo)
     0 4px 12px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
   min-width: 0;
+}
+
+.collapsible-content {
+  overflow: hidden;
+  max-height: 500px;
+  transition: max-height 0.3s ease;
+}
+
+.tab-item.is-collapsed .collapsible-content {
+  max-height: 120px; /* compact meter + slim gain row */
 }
 
 .tab-header {
