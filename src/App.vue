@@ -13,7 +13,7 @@ const tabsStore = useTabsStore()
 const { t, locale } = useI18n()
 const languages = [
   { code: 'en', name: 'English' },
-  { code: 'zh-CN', name: '简体中文' },
+  { code: 'zh_CN', name: '简体中文' },
 ]
 
 const isLoading = computed(() => tabsStore.isLoading)

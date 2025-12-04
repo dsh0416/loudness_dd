@@ -1,0 +1,152 @@
+{
+  "popup_title": {
+    "message": "Loudness DD"
+  },
+  "popup_register_register": {
+    "message": "注册当前标签页"
+  },
+  "popup_register_registering": {
+    "message": "正在注册…"
+  },
+  "popup_tabs_title": {
+    "message": "已监控的标签页"
+  },
+  "footer_brand": {
+    "message": "Loudness DD"
+  },
+  "footer_author": {
+    "message": "github.com/dsh0416"
+  },
+  "autobalance_title": {
+    "message": "音量平衡"
+  },
+  "autobalance_avg": {
+    "message": "平均"
+  },
+  "autobalance_target": {
+    "message": "目标 LUFS"
+  },
+  "autobalance_presets_broadcast": {
+    "message": "广播"
+  },
+  "autobalance_presets_streaming": {
+    "message": "流媒体"
+  },
+  "autobalance_presets_podcast": {
+    "message": "播客"
+  },
+  "autobalance_presets_loud": {
+    "message": "响亮"
+  },
+  "autobalance_balanceNow": {
+    "message": "立即平衡"
+  },
+  "autobalance_auto_start": {
+    "message": "自动平衡"
+  },
+  "autobalance_auto_stop": {
+    "message": "停止自动"
+  },
+  "autobalance_running": {
+    "message": "后台自动平衡中"
+  },
+  "limiter_title": {
+    "message": "输出压限"
+  },
+  "limiter_tooltip_enable": {
+    "message": "启用压限"
+  },
+  "limiter_tooltip_disable": {
+    "message": "禁用压限"
+  },
+  "limiter_on": {
+    "message": "开"
+  },
+  "limiter_off": {
+    "message": "关"
+  },
+  "limiter_description": {
+    "message": "当多个标签播放较响内容时防止削波。阈值决定开始限幅的电平。"
+  },
+  "limiter_ceiling": {
+    "message": "阈值"
+  },
+  "limiter_advanced": {
+    "message": "高级设置"
+  },
+  "limiter_ratio": {
+    "message": "比率"
+  },
+  "limiter_attack": {
+    "message": "起动"
+  },
+  "limiter_release": {
+    "message": "释放"
+  },
+  "limiter_knee": {
+    "message": "拐点"
+  },
+  "limiter_hints_attack_fast": {
+    "message": "快速 - 捕捉瞬态"
+  },
+  "limiter_hints_attack_balanced": {
+    "message": "平衡"
+  },
+  "limiter_hints_attack_slow": {
+    "message": "较慢 - 更自然"
+  },
+  "limiter_hints_release_fast": {
+    "message": "快速 - 有力度"
+  },
+  "limiter_hints_release_balanced": {
+    "message": "平衡"
+  },
+  "limiter_hints_release_slow": {
+    "message": "较慢 - 更顺滑"
+  },
+  "limiter_hints_knee_hard": {
+    "message": "硬拐点 - 精确限幅"
+  },
+  "limiter_hints_knee_soft": {
+    "message": "软拐点 - 更平滑"
+  },
+  "limiter_hints_knee_verySoft": {
+    "message": "非常软 - 轻柔压缩"
+  },
+  "limiter_active": {
+    "message": "压限已在所有监控标签页启用"
+  },
+  "tabs_empty_title": {
+    "message": "没有正在监控的标签页"
+  },
+  "tabs_empty_hint": {
+    "message": "点击「注册标签页」以开始监控音频"
+  },
+  "tabs_actions_solo_on": {
+    "message": "取消独奏（恢复全部）"
+  },
+  "tabs_actions_solo_off": {
+    "message": "独奏（静音其他）"
+  },
+  "tabs_actions_reset": {
+    "message": "重置 LUFS 测量"
+  },
+  "tabs_actions_stop": {
+    "message": "停止监控"
+  },
+  "tabs_maxBoost": {
+    "message": "最大增益："
+  },
+  "tabs_status_collecting": {
+    "message": "正在采样…"
+  },
+  "tabs_status_ready": {
+    "message": "可自动平衡"
+  },
+  "tabs_status_paused": {
+    "message": "已暂停"
+  },
+  "lufs_collecting": {
+    "message": "正在采样…"
+  }
+}

@@ -1,7 +1,7 @@
 import { createI18n } from 'vue-i18n'
 
 import en from './locales/en.json'
-import zhCN from './locales/zh-CN.json'
+import zhCN from './locales/zh_CN.json'
 
 export const i18n = createI18n({
   legacy: false,
@@ -10,6 +10,6 @@ export const i18n = createI18n({
   globalInjection: true,
   messages: {
     en,
-    'zh-CN': zhCN,
+    'zh_CN': zhCN,
   },
 })
